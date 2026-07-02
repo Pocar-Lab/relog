@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logbook</title>
+    <link rel="stylesheet" href="/theme.css">
+    <script src="/fixi.js"></script>
+  </head>
+  <body>
+    <main>
+
+      <header>
+        <h1>Logbook</h1>
+        <p>Simple logbook for recording lab notes</p>
+        <br>
+        <a href='/'>Back to Today</a>
+      </header>
+
+      <table id="log-entries">
+        <tr>
+          <th>Number</th>
+          <th>Date Time</th>
+          <th>Author</th>
+          <th>Note</th>
+        </tr>
+            {%- for log in logs -%}
+                <tr>
+                <!-- TODO link for entry number, date, and each author -->
+                <td>#{{ log[0] }}</td>
+                <td>{{ log[1] }}</td>
+                <td>{{ log[2] }}</td>
+                <td>{{ log[3] }}</td>
+                </tr>
+            {%- endfor -%}
+      </table>
+
+      <form fx-action="/log" fx-method="post" fx-target="#log-entries"
+            fx-swap="beforeend" class="log-form">
+          <label for="message">Note:</label>
+          <textarea name="message" rows="7" placeholder="Enter your post here."
+            required></textarea>
+
+          <label for="name">Authors:</label>
+          <input type="text" name="name" id="name" required />
+          <!-- TODO non current date -->
+          <!-- TODO attachments -->
+
+          <input type="submit" value="Submit" />
+      </form>
+
+    </main>
+
+  </body>
+</html>
