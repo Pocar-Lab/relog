@@ -1,5 +1,10 @@
 /* MVP.css v1.17.3 - https://github.com/andybrewer/mvp */
 
+.log-search {
+    display: flex;
+    justify-content: center;
+}
+
 :root {
   --active-brightness: 0.85;
   --border-radius: 5px;

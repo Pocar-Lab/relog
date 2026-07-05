@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from markupsafe import escape
 from flask_cors import CORS
-from datetime import datetime
+import datetime as dt
 import sqlite3
 import markdown
 
@@ -36,10 +36,32 @@ def serve_static(path):
 # Home page
 @app.route('/')
 def home():
-    rows = get_db().execute(
-        "SELECT * FROM log ORDER BY num ASC"
-    ).fetchall()
-    print(f"{rows=}")
+    num = request.args.get('num', '').strip() # TODO strip leading #
+    author = request.args.get('author', '').strip()
+    before = request.args.get('before', '').strip()
+    after = request.args.get('after', '').strip()
+    text = request.args.get('q', '').strip()
+
+    query = "SELECT * FROM log WHERE "
+    params = []
+    if num:
+        query += "num = ? AND " # TODO search range if hypen
+        params.append(num)
+    if author:
+        query += "authors = ? AND " # TODO any author in authors list
+        params.append(author)
+    if before:
+        query += "date <= ? AND "
+        params.append(before)
+    if after:
+        query += "date >= ? AND "
+        params.append(after)
+    if text:
+        query += "note LIKE ? AND " # TODO replace with MATCH
+        params.append(f"%{text}%")
+    query += " 1=1 ORDER BY num ASC"
+
+    rows = get_db().execute(query, params).fetchall()
     return render_template('index.html', logs=rows)
 
 
