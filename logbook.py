@@ -71,7 +71,7 @@ def home():
 def log():
     name = request.form['name'].strip() # TODO split into multiple authors
     msg = request.form['message'].strip()
-    date = f"{datetime.now():%Y-%m-%d %H:%M}"
+    date = f"{dt.datetime.now():%Y-%m-%d %H:%M}"
     with get_db() as conn:
         cur = conn.execute(
             "INSERT INTO log (date, authors, note) VALUES (?, ?, ?)",

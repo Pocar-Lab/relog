@@ -5,6 +5,11 @@
     justify-content: center;
 }
 
+.log-note {
+    vertical-align: top;
+    text-align:left;
+}
+
 :root {
   --active-brightness: 0.85;
   --border-radius: 5px;
@@ -538,7 +543,7 @@ table {
   max-width: 100%;
   overflow-x: auto;
   padding: 0;
-  white-space: nowrap;
+  white-space: wrap;
 }
 
 table td,
