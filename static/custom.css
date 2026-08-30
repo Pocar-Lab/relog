@@ -1,0 +1,59 @@
+.log-search {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-contents: stretch;
+}
+.log-search input {
+    flex: 1;
+}
+.log-search .q {
+    flex: 8 1 80%;
+}
+.log-search .submit {
+    flex: 0 5 10%;
+}
+
+log-entry {
+    display: flex;
+    margin: 0.2rem;
+    align-items: stretch;
+}
+log-entry:nth-of-type(even) log-post {
+    background: rgba(1, 1, 1, 0.1);
+}
+log-num {
+    flex: 0 4 10%;
+    text-align: right;
+    margin: 0 0.5em;
+    font-size: 1.2em;
+    font-weight: 500;
+}
+log-post {
+    flex: 0 4 100%;
+    display: block;
+    margin: 0.5rem 0 1rem;
+    padding: 0 0.6rem;
+    border-radius: 4px;
+    overflow: hidden;
+    outline: 1px solid var(--cmed);
+}
+
+log-authors {
+    font-weight: bold;
+    font-style: italic;
+}
+log-post log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: inset 0 0 0 2em var(--clight), 0 -0.8rem 0 0.8rem var(--clight);
+}
+log-post p textarea {
+    width:100%;
+}
+
+/* Highlight selected post */
+log-entry:target log-post {
+    outline: 3px solid red;
+}

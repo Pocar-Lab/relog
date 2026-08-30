@@ -79,12 +79,17 @@ def log():
         )
         # TODO get request of page w/ date
         return f"""
-            <tr>
-            <td>#{cur.lastrowid}</td>
-            <td>{date}</td>
-            <td>{escape(name)}</td>
-            <td>{escape(msg)}</td>
-            </tr>
+            <log-entry>
+                <log-num>#{cur.lastrowid}</log-num>
+                <log-post>
+                    <log-header>
+                        <log-authors>{escape(name)}</log-authors>
+                        <log-datetime>{date}</log-datetime>
+                    </log-header>
+                    <hr>
+                    <p>{escape(msg)}</p>
+                </log-post>
+            </log-entry>
         """
 
 if __name__ == "__main__":

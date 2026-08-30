@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Logbook</title>
     <link rel="stylesheet" href="/theme.css">
+    <link rel="stylesheet" href="/custom.css">
     <link rel="stylesheet" href="/font/fonts.css">
     <script src="/fixi.js"></script>
   </head>
@@ -18,46 +19,63 @@
         <a href='/'>Back to Today</a>
       </header>
 
-      <table id="log-entries">
-        <tr>
-          <th>Number</th>
-          <th>Date Time</th>
-          <th>Author</th>
-          <th>Note</th>
-        </tr>
-            {%- for log in logs -%}
-                <tr>
-                <!-- TODO link for entry number, date, and each author -->
-                <td>#{{ log[0] }}</td>
-                <td>{{ log[1] }}</td>
-                <td>{{ log[2] }}</td>
-                <td class="log-note">{{ log[3] }}</td>
-                </tr>
-            {%- endfor -%}
-      </table>
 
-      <form fx-action="/log" fx-method="post" fx-target="#log-entries"
-            fx-swap="beforeend" class="log-form">
-          <label for="message">Note:</label>
-          <textarea name="message" rows="7" placeholder="Enter your post here."
-            required></textarea>
+      <details>
+          <summary>Search</summary>
+          <form action="/" method="GET" class="log-search">
+              <input type="search" name="q" id="q" placeholder="Search Logs..." autocomplete="on" />
+              <input type="submit" id="submit" value="Search" autocomplete="on" />
+              <input type="text" name="num" id="num" placeholder="Number" autocomplete="on" />
+              <input type="text" name="author" id="name" placeholder="Author" autocomplete="on" />
+              <input type="text" name="after" id="after" placeholder="After Date" autocomplete="on" />
+              <input type="text" name="before" id="before" placeholder="Before Date" autocomplete="on" />
+          </form>
+      </details>
 
-          <label for="name">Authors:</label>
-          <input type="text" name="name" id="name" required />
-          <!-- TODO non current date -->
-          <!-- TODO attachments -->
+      <log-entries>
+          {%- for log in logs -%}
+            <log-entry id="{{log[0]}}">
+                <log-num>#{{ log[0] }}</log-num>
+                <log-post> <!-- TODO change to details? -->
+                    <log-header>
+                        <log-authors>{{ log[2] }}</log-authors>
+                        <log-datetime>{{ log[1] }}</log-datetime>
+                    </log-header>
+                    <hr>
+                    <p>{{ log[3] }}</p>
+                </log-post>
+            </log-entry>
+          {%- endfor -%}
+      </log-entries>
 
-          <input type="submit" value="Submit" />
-      </form>
+      <hr style="padding: 2em;">
 
-      <form action="/" method="GET" class="log-search">
-          <input type="text" name="num" id="num" placeholder="Number" />
-          <input type="text" name="author" id="name" placeholder="Author" />
-          <input type="date" name="before" id="before" />
-          <input type="date" name="after" id="after" />
-          <input type="text" name="q" id="q" placeholder="Containing..." />
-
-          <input type="submit" value="Search" />
+      <!-- TODO remove need for fixi by loading page with date and date anchor? -->
+      <form fx-action="/log" fx-method="post" fx-target="log-entries"
+            fx-swap="beforeend">
+          <log-entry>
+              <log-num>New Post</log-num>
+              <log-post>
+                  <log-header>
+                      <log-authors>
+                          <!-- TODO value="{{ username }}" -->
+                          <input type="text" name="name" id="name" autocomplete="on"
+                                 placeholder="Authors" required />
+                      </log-authors>
+                      <!-- TODO non current date -->
+                      <log-datetime>Current time</log-datetime>
+                  </log-header>
+                  <hr>
+                  <p>
+                      <textarea name="message" id="message" rows="7"
+                                placeholder="New log post..." required></textarea>
+                      <label for="file">Attachments:
+                          <input type="file" name="file" id="file" multiple />
+                      </label>
+                      <input type="submit" value="Submit" />
+                  </p>
+              </log-post>
+          </log-entry>
       </form>
 
     </main>

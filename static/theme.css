@@ -1,15 +1,5 @@
 /* Classless.css v1.1 */
 
-.log-search {
-    display: flex;
-    justify-content: center;
-}
-
-.log-note {
-    vertical-align: top;
-    text-align:left;
-}
-
 :root, html {
     --rem: 14px;
     --navpos: absolute; /* fixed | absolute */
