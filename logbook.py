@@ -54,10 +54,10 @@ def home():
         title += f"by {author} "
         params.append(author)
     if before:
-        query += "date <= ? AND "
+        query += "date(date) <= ? AND "
         params.append(before)
     if after:
-        query += "date >= ? AND "
+        query += "date(date) >= ? AND "
         params.append(after)
     if text:
         query += "note LIKE ? AND " # TODO replace with MATCH
