@@ -43,12 +43,15 @@ def home():
     text = request.args.get('q', '').strip()
 
     query = "SELECT * FROM log WHERE "
+    title = "Logs "
     params = []
     if num:
         query += "num = ? AND " # TODO search range if hypen
+        title += f"#{num} "
         params.append(num)
     if author:
         query += "authors = ? AND " # TODO any author in authors list
+        title += f"by {author} "
         params.append(author)
     if before:
         query += "date <= ? AND "
@@ -58,12 +61,20 @@ def home():
         params.append(after)
     if text:
         query += "note LIKE ? AND " # TODO replace with MATCH
+        title += f"containing '{text}' "
         params.append(f"%{text}%")
     query += " 1=1 ORDER BY num ASC"
 
-    rows = get_db().execute(query, params).fetchall()
-    return render_template('index.html', logs=rows)
+    if before == after and before:
+        title += f"on {before} "
+    else:
+        if before:
+            title += f"before {before} "
+        if after:
+            title += f"after {after} "
 
+    rows = get_db().execute(query, params).fetchall()
+    return render_template('index.html', logs=rows, title=title)
 
 
 # Upload new logbook post
