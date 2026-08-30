@@ -33,6 +33,12 @@ def init_db():
 def serve_static(path):
     return send_from_directory('static', path)
 
+def inc_date(date, val=1):
+    "Increment or decrement date by value given"
+    delta = dt.timedelta(days=val)
+    next_date = dt.date.strptime(date, "%Y-%m-%d") + delta
+    return next_date.strftime("%Y-%m-%d")
+
 # Home page
 @app.route('/')
 def home():
@@ -74,8 +80,11 @@ def home():
             title += f"after {after} "
 
     rows = get_db().execute(query, params).fetchall()
-    return render_template('index.html', logs=rows, title=title)
-
+    curr_date = dt.datetime.now().strftime("%Y-%m-%d")
+    prev_date = inc_date(before or curr_date, -1)
+    next_date = inc_date(after or curr_date, +1)
+    return render_template('index.html', logs=rows, title=title,
+                           curr_date=curr_date, prev_date=prev_date, next_date=next_date)
 
 # Upload new logbook post
 @app.post('/log')
