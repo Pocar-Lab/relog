@@ -1,4 +1,10 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory
+"""
+Simple logbook for recording daily lab notes
+Install: pip install flask flask-cors
+Run:     python logbook.py
+"""
+
+from flask import Flask, request, jsonify, render_template, send_from_directory, redirect
 from markupsafe import escape
 from flask_cors import CORS
 import datetime as dt
@@ -97,20 +103,9 @@ def log():
             "INSERT INTO log (date, authors, note) VALUES (?, ?, ?)",
             (date, name, msg),
         )
-        # TODO get request of page w/ date
-        return f"""
-            <log-entry>
-                <log-num>#{cur.lastrowid}</log-num>
-                <log-post>
-                    <log-header>
-                        <log-authors>{escape(name)}</log-authors>
-                        <log-datetime>{date}</log-datetime>
-                    </log-header>
-                    <hr>
-                    <p>{escape(msg)}</p>
-                </log-post>
-            </log-entry>
-        """
+        date_no_time = date.split(' ', 1)[0]
+        return redirect(f"/?before={date_no_time}&after={date_no_time}#{cur.lastrowid}")
+
 
 if __name__ == "__main__":
     init_db()
