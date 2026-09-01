@@ -55,5 +55,5 @@ log-post p textarea {
 
 /* Highlight selected post */
 log-entry:target log-post {
-    outline: 3px solid red;
+    box-shadow: 0px 0px 10px 10px rgba(0,122,204,0.5);
 }
