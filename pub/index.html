@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="/theme.css">
     <link rel="stylesheet" href="/custom.css">
     <link rel="stylesheet" href="/font/fonts.css">
+    <link rel="stylesheet" href="/lightbox3.css">
+    <script src="/lightbox3.min.js"></script>
   </head>
   <body>
     <main>
@@ -43,7 +45,18 @@
                         <log-datetime>{{ log[1] }}</log-datetime>
                     </log-header>
                     <hr>
-                    <p>{{ log[3] }}</p>
+                    <p>{{ log[4] }}</p>
+                    {%- for file in log[3].split(':') -%}
+                        {%- if file_is_img(file) -%}
+                            <a href="/upload/{{ file }}" data-lightbox="{{ log[0] }}">
+                                <img src="/upload/{{ file }}" alt="{{ file }}"/>
+                            </a>
+                        {%- else -%}
+                            <a href="/upload/{{ file }}">
+                                {{ file }}
+                            </a>
+                        {%- endif -%}
+                    {%- endfor -%}
                 </log-post>
             </log-entry>
           {%- endfor -%}
@@ -51,7 +64,7 @@
 
       <hr style="padding: 2em;">
 
-      <form action="/log" method="post">
+      <form action="/log" method="post" enctype=multipart/form-data>
           <log-entry>
               <log-num>New Post</log-num>
               <log-post>
@@ -68,10 +81,10 @@
                   <p>
                       <textarea name="message" id="message" rows="7"
                                 placeholder="New log post..." required></textarea>
-                      <label for="file">Attachments:
-                          <input type="file" name="file" id="file" multiple />
+                      <label for="files" id="attachment">Attachments:
+                          <input type="file" name="files" id="files" multiple />
                       </label>
-                      <input type="submit" value="Submit" />
+                      <input type="submit" id="submit" value="Submit" />
                   </p>
               </log-post>
           </log-entry>

@@ -1,3 +1,6 @@
+# Python Files
 *.pyc
 
+# Logbook files
 *.db
+static/upload

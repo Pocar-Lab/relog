@@ -5,11 +5,13 @@ Run:     python logbook.py
 """
 
 from flask import Flask, request, jsonify, render_template, send_from_directory, redirect
+from werkzeug.utils import secure_filename
 from markupsafe import escape
 from flask_cors import CORS
 import datetime as dt
 import sqlite3
 import markdown
+import os
 
 
 app = Flask(__name__, static_folder='static', template_folder="pub")
@@ -17,10 +19,12 @@ CORS(app)  # Allow requests from the HTML file opened locally
 
 DB_PATH = "logbook.db"
 
+UPLOAD_FOLDER = 'static/upload'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     return conn
-
 
 def init_db():
     with get_db() as conn:
@@ -29,10 +33,18 @@ def init_db():
                 num     INTEGER PRIMARY KEY AUTOINCREMENT,
                 date    TEXT    DEFAULT (datetime('now')),
                 authors TEXT    NOT NULL,
+                files   TEXT    DEFAULT NULL,
                 note    TEXT    NOT NULL
             )
         """)
 
+IMG_EXTS = {'png', 'apng', 'avif', 'jpg', 'jpeg', 'jfif',
+            'pjpeg', 'pjp', 'jxl', 'gif', 'svg', 'webp'}
+
+def file_is_img(filename):
+    ext = filename.split('.')[-1].lower()
+    return ext in IMG_EXTS
+app.jinja_env.globals.update(file_is_img=file_is_img)
 
 # Static files
 @app.route('/<path:path>')
@@ -98,12 +110,26 @@ def log():
     name = request.form['name'].strip() # TODO split into multiple authors
     msg = request.form['message'].strip()
     date = f"{dt.datetime.now():%Y-%m-%d %H:%M}"
+
+    files = request.files.getlist("files")
+    # TODO dont override file of same name
+    # TODO put in date folder
+    # TODO compress image / block files over 2MB
+    # TODO error if file name contains :
+    file_names = []
+    for file in files:
+        file_name = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+        file_names.append(file_name)
+    file_str = ":".join(file_names)
+
     with get_db() as conn:
         cur = conn.execute(
-            "INSERT INTO log (date, authors, note) VALUES (?, ?, ?)",
-            (date, name, msg),
+            "INSERT INTO log (date, authors, files, note) VALUES (?, ?, ?, ?)",
+            (date, name, file_str, msg),
         )
         date_no_time = date.split(' ', 1)[0]
+        # TODO on failure to upload file etc send warning pop up
         return redirect(f"/?before={date_no_time}&after={date_no_time}#{cur.lastrowid}")
 
 
