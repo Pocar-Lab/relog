@@ -22,18 +22,17 @@
         <a href='/?before={{next_date}}&after={{next_date}}'>Forward</a>
       </header>
 
-
-      <details>
-          <summary>Search</summary>
-          <form action="/" method="GET" class="log-search">
-              <input type="search" name="q" id="q" placeholder="Search Logs..." autocomplete="on" />
-              <input type="submit" id="submit" value="Search" autocomplete="on" />
+      <form action="/" method="GET" class="log-search">
+          <input type="search" name="q" id="q" placeholder="Search Logs..." autocomplete="on" />
+          <input type="submit" id="submit" value="Search" autocomplete="on" />
+          <details>
+              <summary>Advanced Search</summary>
               <input type="text" name="num" id="num" placeholder="Number" autocomplete="on" />
               <input type="text" name="author" id="name" placeholder="Author" autocomplete="on" />
               <input type="text" name="after" id="after" placeholder="After Date" autocomplete="on" />
               <input type="text" name="before" id="before" placeholder="Before Date" autocomplete="on" />
-          </form>
-      </details>
+          </details>
+      </form>
 
       <log-entries>
           {%- for log in logs -%}

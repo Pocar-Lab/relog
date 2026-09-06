@@ -4,14 +4,16 @@
     justify-content: space-around;
     align-contents: stretch;
 }
-.log-search input {
+.log-search #q {
+    flex: 8;
+    margin: 0.5em;
+}
+.log-search #submit {
     flex: 1;
+    margin: 0.5em;
 }
-.log-search .q {
-    flex: 8 1 80%;
-}
-.log-search .submit {
-    flex: 0 5 10%;
+.log-search details {
+    flex: 0 0 100%
 }
 
 log-entry {
@@ -51,6 +53,24 @@ log-post log-header {
 }
 log-post p textarea {
     width:100%;
+}
+log-post p textarea {
+    width:100%;
+}
+log-post p {
+    display: flex;
+    flex-wrap: wrap;
+}
+log-post p #attachment {
+    flex: 6;
+    margin: 1em;
+}
+log-post p #submit {
+    flex: 2;
+    margin: 1em;
+}
+log-post img {
+    height: 400px;
 }
 
 /* Highlight selected post */
