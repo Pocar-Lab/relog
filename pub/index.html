@@ -37,7 +37,7 @@
       <log-entries>
           {%- for log in logs -%}
             <log-entry id="{{log[0]}}">
-                <log-num>#{{ log[0] }}</log-num>
+                <log-num>#{{ log[0] }}</log-num> <!-- TODO add link -->
                 <log-post> <!-- TODO change to details? -->
                     <log-header>
                         <log-authors>{{ log[2] }}</log-authors>
@@ -46,7 +46,9 @@
                     <hr>
                     <p>{{ log[4] }}</p>
                     {%- for file in log[3].split(':') -%}
-                        {%- if file_is_img(file) -%}
+                    <!-- TODO save alt text w/ file and disp as figure with figure caption -->
+                    <!-- TODO label fig as #post.fignum -->
+                        {%- if is_file_img(file) -%}
                             <a href="/upload/{{ file }}" data-lightbox="{{ log[0] }}">
                                 <img src="/upload/{{ file }}" alt="{{ file }}"/>
                             </a>

@@ -41,15 +41,17 @@ def init_db():
 IMG_EXTS = {'png', 'apng', 'avif', 'jpg', 'jpeg', 'jfif',
             'pjpeg', 'pjp', 'jxl', 'gif', 'svg', 'webp'}
 
-def file_is_img(filename):
+def is_file_img(filename):
     ext = filename.split('.')[-1].lower()
     return ext in IMG_EXTS
-app.jinja_env.globals.update(file_is_img=file_is_img)
+app.jinja_env.globals.update(is_file_img=is_file_img)
 
 # Static files
 @app.route('/<path:path>')
 def serve_static(path):
     return send_from_directory('static', path)
+
+# TODO markdown to html files in wiki/
 
 def inc_date(date, val=1):
     "Increment or decrement date by value given"
@@ -66,6 +68,7 @@ def home():
     after = request.args.get('after', '').strip()
     text = request.args.get('q', '').strip()
 
+    # TODO pull out to func
     query = "SELECT * FROM log WHERE "
     title = "Logs "
     params = []
@@ -90,7 +93,7 @@ def home():
     query += " 1=1 ORDER BY num ASC"
 
     if before == after and before:
-        title += f"on {before} "
+        title += f"on {before} " # TODO change to today when current date
     else:
         if before:
             title += f"before {before} "
