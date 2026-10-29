@@ -37,11 +37,19 @@
       <log-entries>
           {%- for log in logs -%}
             <log-entry id="{{log[0]}}">
-                <log-num>#{{ log[0] }}</log-num> <!-- TODO add link -->
+                <log-num>
+                    <a href="/?before={{ log[1].split(' ', 1)[0] }}&after={{ log[1].split(' ', 1)[0] }}#{{ log[0] }}">
+                        #{{ log[0] }}
+                    </a>
+                </log-num>
                 <log-post> <!-- TODO change to details? -->
                     <log-header>
                         <log-authors>{{ log[2] }}</log-authors>
-                        <log-datetime>{{ log[1] }}</log-datetime>
+                        <log-datetime>
+                            <a href="/?before={{ log[1].split(' ', 1)[0] }}&after={{ log[1].split(' ', 1)[0] }}">
+                                {{ log[1] }}
+                            </a>
+                        </log-datetime>
                     </log-header>
                     <hr>
                     <p>{{ log[4] }}</p>
