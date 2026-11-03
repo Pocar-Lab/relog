@@ -112,7 +112,7 @@ def home():
 def log():
     name = request.form['name'].strip() # TODO split into multiple authors
     msg = request.form['message'].strip()
-    date = f"{dt.datetime.now():%Y-%m-%d %H:%M}"
+    date = request.form['datetime'].strip() or f"{dt.datetime.now():%Y-%m-%d %H:%M}"
 
     files = request.files.getlist("files")
     # TODO dont override file of same name
