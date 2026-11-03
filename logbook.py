@@ -122,6 +122,8 @@ def log():
     file_names = []
     for file in files:
         file_name = secure_filename(file.filename)
+        if not file_name:
+            continue
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
         file_names.append(file_name)
     file_str = ":".join(file_names)
