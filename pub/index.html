@@ -62,11 +62,13 @@
                         </log-datetime>
                     </log-header>
                     <hr>
-                    <p>
-                        {%- if log['crossout'] -%} <del> {%- endif -%}
-                        {{ log['note'] }}
-                        {%- if log['crossout'] -%} </del> {%- endif -%}
-                    </p>
+                    <log-note>
+                        <p>
+                            {%- if log['crossout'] -%} <del> {%- endif -%}
+                            {{ log['note'] }}
+                            {%- if log['crossout'] -%} </del> {%- endif -%}
+                        </p>
+                    </log-note>
                     {%- for file in log['files'].split(':') -%}
                     <!-- TODO save alt text w/ file and disp as figure with figure caption -->
                     <!-- TODO label fig as #post.fignum -->
@@ -104,14 +106,14 @@
                       </log-datetime>
                   </log-header>
                   <hr>
-                  <p>
+                  <log-note>
                       <textarea name="message" id="message" rows="7"
                                 placeholder="New log post..." required></textarea>
                       <label for="files" id="attachment">Attachments:
                           <input type="file" name="files" id="files" multiple />
                       </label>
                       <input type="submit" id="submit" value="Submit" />
-                  </p>
+                  </log-note>
               </log-post>
           </log-entry>
       </form>
