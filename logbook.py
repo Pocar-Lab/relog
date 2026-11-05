@@ -31,11 +31,13 @@ def init_db():
     with get_db() as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS log (
-                num     INTEGER PRIMARY KEY AUTOINCREMENT,
-                date    TEXT    DEFAULT (datetime('now')),
-                authors TEXT    NOT NULL,
-                files   TEXT    DEFAULT NULL,
-                note    TEXT    NOT NULL
+                num       INTEGER PRIMARY KEY AUTOINCREMENT,
+                authors   TEXT       NOT NULL,
+                date      TEXT       DEFAULT (datetime('now')),
+                submit    TEXT       DEFAULT (datetime('now')),
+                note      TEXT       NOT NULL,
+                files     TEXT       DEFAULT NULL,
+                crossout  tinyint(1) NOT NULL DEFAULT '0',
             )
         """)
 
@@ -137,6 +139,14 @@ def log():
         date_no_time = date.split(' ', 1)[0]
         # TODO on failure to upload file etc send warning pop up
         return redirect(f"/?before={date_no_time}&after={date_no_time}#{cur.lastrowid}")
+
+@app.post('/crossout/<int:num>')
+def crossout(num):
+    "Mark the given log post as crossed out"
+    with get_db() as conn:
+        conn.execute("UPDATE log SET crossout = 1 WHERE num = ?", (num,))
+    target = request.referrer or f'/?num={num}'
+    return redirect(f"{target}#{num}")
 
 
 if __name__ == "__main__":

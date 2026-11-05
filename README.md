@@ -6,7 +6,8 @@
 
 Research logbook for collaborative daily lab notes.
 A simple web interface to an append-only logbook database.
-You cannot delete or modify log posts once submitted.
+You cannot delete or modify log posts once submitted,
+only cross them out.
 
 # Features
 

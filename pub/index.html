@@ -49,17 +49,29 @@
                             <a href="/?before={{ log['date'].split(' ', 1)[0] }}&after={{ log['date'].split(' ', 1)[0] }}">
                                 {{ log['date'] }}
                             </a>
+                            <button command="show-modal" commandfor="crossout-dialog-{{log['num']}}">✘</button>
+                            <dialog id="crossout-dialog-{{log['num']}}">
+                                <p>Are you sure you want to cross out post
+                                   #{{ log['num'] }} by {{ log['authors'] }}?</p>
+                                <p>This cannot be undone!</p>
+                                <button commandfor="crossout-dialog-{{log['num']}}" command="close">Cancel</button>
+                                <form action="/crossout/{{ log['num'] }}" method="post">
+                                    <button type="submit">Crossout</button>
+                                </form>
+                            </dialog>
                         </log-datetime>
                     </log-header>
                     <hr>
                     <p>
+                        {%- if log['crossout'] -%} <del> {%- endif -%}
                         {{ log['note'] }}
+                        {%- if log['crossout'] -%} </del> {%- endif -%}
                     </p>
                     {%- for file in log['files'].split(':') -%}
                     <!-- TODO save alt text w/ file and disp as figure with figure caption -->
                     <!-- TODO label fig as #post.fignum -->
                         {%- if is_file_img(file) -%}
-                            <a href="/upload/{{ file }}" data-lightbox="{{ log[0] }}">
+                            <a href="/upload/{{ file }}" data-lightbox="{{ log['num'] }}">
                                 <img src="/upload/{{ file }}" alt="{{ file }}"/>
                             </a>
                         {%- else -%}
