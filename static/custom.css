@@ -22,7 +22,7 @@ log-entry {
     align-items: stretch;
 }
 log-entry:nth-of-type(even) log-post {
-    background: rgba(1, 1, 1, 0.1);
+    background: color-mix(in srgb, var(--cmed) 20%, transparent);
 }
 log-num {
     flex: 0 4 10%;
