@@ -577,6 +577,12 @@ p > select {
   margin: 0 0.5em;
 }
 
+dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+}
+
 /* 5. Bootstrap-compatible classes ––––––––––––––––––––– */
 
 /* grid */
