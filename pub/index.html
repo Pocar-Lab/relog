@@ -46,7 +46,8 @@
                     <log-header>
                         <log-authors>{{ log['authors'] }}</log-authors>
                         <log-datetime>
-                            <a href="/?before={{ log['date'].split(' ', 1)[0] }}&after={{ log['date'].split(' ', 1)[0] }}">
+                            <a href="/?before={{ log['date'].split(' ', 1)[0] }}&after={{ log['date'].split(' ', 1)[0] }}"
+                               title="Submitted: {{ log['submit'] }}">
                                 {{ log['date'] }}
                             </a>
                             <button command="show-modal" commandfor="crossout-dialog-{{log['num']}}">✘</button>
