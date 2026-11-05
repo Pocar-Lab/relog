@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 from markupsafe import escape
 from flask_cors import CORS
 import datetime as dt
+from dateutil.parser import parse
 import sqlite3
 import markdown
 import os
@@ -115,7 +116,11 @@ def home():
 def log():
     name = request.form['name'].strip() # TODO split into multiple authors
     msg = request.form['message'].strip()
-    date = request.form['datetime'].strip() or f"{dt.datetime.now():%Y-%m-%d %H:%M}"
+    # TODO only set to now if datetime empty, otherwise error on parse exception
+    try:
+        date = parse(request.form['datetime'].strip())
+    except:
+        date = dt.datetime.now()
 
     files = request.files.getlist("files")
     # TODO dont override file of same name
@@ -132,11 +137,12 @@ def log():
     file_str = ":".join(file_names)
 
     with get_db() as conn:
+        datestr = f"{date:%Y-%m-%d %H:%M}"
         cur = conn.execute(
             "INSERT INTO log (date, authors, files, note) VALUES (?, ?, ?, ?)",
-            (date, name, file_str, msg),
+            (datestr, name, file_str, msg),
         )
-        date_no_time = date.split(' ', 1)[0]
+        date_no_time = f"{date:%Y-%m-%d}"
         # TODO on failure to upload file etc send warning pop up
         return redirect(f"/?before={date_no_time}&after={date_no_time}#{cur.lastrowid}")
 
