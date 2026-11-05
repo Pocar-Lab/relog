@@ -36,24 +36,26 @@
 
       <log-entries>
           {%- for log in logs -%}
-            <log-entry id="{{log[0]}}">
+            <log-entry id="{{log['num']}}">
                 <log-num>
-                    <a href="/?before={{ log[1].split(' ', 1)[0] }}&after={{ log[1].split(' ', 1)[0] }}#{{ log[0] }}">
-                        #{{ log[0] }}
+                    <a href="/?before={{ log['date'].split(' ', 1)[0] }}&after={{ log['date'].split(' ', 1)[0] }}#{{ log['num'] }}">
+                        #{{ log['num'] }}
                     </a>
                 </log-num>
                 <log-post> <!-- TODO change to details? -->
                     <log-header>
-                        <log-authors>{{ log[2] }}</log-authors>
+                        <log-authors>{{ log['authors'] }}</log-authors>
                         <log-datetime>
-                            <a href="/?before={{ log[1].split(' ', 1)[0] }}&after={{ log[1].split(' ', 1)[0] }}">
-                                {{ log[1] }}
+                            <a href="/?before={{ log['date'].split(' ', 1)[0] }}&after={{ log['date'].split(' ', 1)[0] }}">
+                                {{ log['date'] }}
                             </a>
                         </log-datetime>
                     </log-header>
                     <hr>
-                    <p>{{ log[4] }}</p>
-                    {%- for file in log[3].split(':') -%}
+                    <p>
+                        {{ log['note'] }}
+                    </p>
+                    {%- for file in log['files'].split(':') -%}
                     <!-- TODO save alt text w/ file and disp as figure with figure caption -->
                     <!-- TODO label fig as #post.fignum -->
                         {%- if is_file_img(file) -%}

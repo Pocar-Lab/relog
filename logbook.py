@@ -24,6 +24,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row # Support row access by column name
     return conn
 
 def init_db():
