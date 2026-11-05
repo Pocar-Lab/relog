@@ -31,6 +31,10 @@ log-num {
     font-size: 1.2em;
     font-weight: 500;
 }
+log-num a[href] {
+    color: var(--cfg);
+    text-decoration: none;
+}
 log-post {
     flex: 0 4 100%;
     display: block;
