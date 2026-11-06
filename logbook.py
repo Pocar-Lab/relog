@@ -13,6 +13,7 @@ from dateutil.parser import parse
 import sqlite3
 import markdown
 import os
+now = dt.datetime.now
 
 
 app = Flask(__name__, static_folder='static', template_folder="pub")
@@ -23,6 +24,8 @@ DB_PATH = "logbook.db"
 UPLOAD_FOLDER = 'static/upload'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+SECTIONS = [ 'borexino', 'darkside', 'exo', 'lxe', 'kumarlab', 'hfe', 'misc' ] # 'photosensor',
+
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row # Support row access by column name
@@ -30,17 +33,18 @@ def get_db():
 
 def init_db():
     with get_db() as conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS log (
-                num       INTEGER PRIMARY KEY AUTOINCREMENT,
-                authors   TEXT       NOT NULL,
-                date      TEXT       DEFAULT (datetime('now')),
-                submit    TEXT       DEFAULT (datetime('now')),
-                note      TEXT       NOT NULL,
-                files     TEXT       DEFAULT NULL,
-                crossout  tinyint(1) NOT NULL DEFAULT '0',
-            )
-        """)
+        for sec in SECTIONS:
+            conn.execute(f"""
+                CREATE TABLE IF NOT EXISTS log_{sec} (
+                    num       INTEGER PRIMARY KEY AUTOINCREMENT,
+                    authors   TEXT       NOT NULL,
+                    date      TEXT       DEFAULT (datetime('now')),
+                    submit    TEXT       DEFAULT (datetime('now')),
+                    note      TEXT       NOT NULL,
+                    files     TEXT       DEFAULT NULL,
+                    crossout  tinyint(1) NOT NULL DEFAULT '0',
+                )
+            """)
 
 IMG_EXTS = {'png', 'apng', 'avif', 'jpg', 'jpeg', 'jfif',
             'pjpeg', 'pjp', 'jxl', 'gif', 'svg', 'webp'}
@@ -64,8 +68,10 @@ def inc_date(date, val=1):
     return next_date.strftime("%Y-%m-%d")
 
 # Home page
-@app.route('/')
-def home():
+@app.route('/<string:sec>/log')
+def logs(sec):
+    if sec not in SECTIONS:
+        abort(404)
     num = request.args.get('num', '').strip() # TODO strip leading #
     author = request.args.get('author', '').strip()
     before = request.args.get('before', '').strip()
@@ -73,10 +79,11 @@ def home():
     text = request.args.get('q', '').strip()
 
     # TODO pull out to func
-    query = "SELECT * FROM log WHERE "
+    query = f"SELECT * FROM log_{sec} WHERE "
     title = "Logs "
     params = []
     if num:
+        # TODO change to anchor on date
         query += "num = ? AND " # TODO search range if hypen
         title += f"#{num} "
         params.append(num)
@@ -105,57 +112,64 @@ def home():
             title += f"after {after} "
 
     rows = get_db().execute(query, params).fetchall()
-    curr_date = dt.datetime.now().strftime("%Y-%m-%d")
+    curr_date = now().strftime("%Y-%m-%d")
     prev_date = inc_date(before or curr_date, -1)
     next_date = inc_date(after or curr_date, +1)
-    return render_template('index.html', logs=rows, title=title,
+    return render_template('index.html', logs=rows, title=title, sec=sec,
                            curr_date=curr_date, prev_date=prev_date, next_date=next_date)
 
+def upload_files(sec, files):
+    # TODO dont override file of same name
+    # TODO put in date folder
+    # TODO compress image / block files over 2MB
+    # TODO error if file name contains :
+    files_str = []
+    for f in files:
+        file_name = secure_filename(f.filename)
+        if not file_name:
+            continue
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], sec, file_name) # TODO date,
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        f.save(file_path)
+        files_str.append(file_name)
+    return ":".join(files_str)
+
 # Upload new logbook post
-@app.post('/log')
-def log():
+@app.post('/<string:sec>/log')
+def log(sec):
+    if sec not in SECTIONS:
+        abort(404)
     name = request.form['name'].strip() # TODO split into multiple authors
     msg = request.form['message'].strip()
     # TODO only set to now if datetime empty, otherwise error on parse exception
     try:
         date = parse(request.form['datetime'].strip())
     except:
-        date = dt.datetime.now()
+        date = now()
 
-    files = request.files.getlist("files")
-    # TODO dont override file of same name
-    # TODO put in date folder
-    # TODO compress image / block files over 2MB
-    # TODO error if file name contains :
-    file_names = []
-    for file in files:
-        file_name = secure_filename(file.filename)
-        if not file_name:
-            continue
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
-        file_names.append(file_name)
-    file_str = ":".join(file_names)
+    files = upload_files(sec, request.files.getlist("files"))
 
     with get_db() as conn:
         datestr = f"{date:%Y-%m-%d %H:%M}"
         cur = conn.execute(
-            "INSERT INTO log (date, authors, files, note) VALUES (?, ?, ?, ?)",
-            (datestr, name, file_str, msg),
+            f"INSERT INTO log_{sec} (date, authors, files, note) VALUES (?, ?, ?, ?)",
+            (datestr, name, files, msg),
         )
         date_no_time = f"{date:%Y-%m-%d}"
         # TODO on failure to upload file etc send warning pop up
-        return redirect(f"/?before={date_no_time}&after={date_no_time}#{cur.lastrowid}")
+        return redirect(f"/{sec}/log?before={date_no_time}&after={date_no_time}#{cur.lastrowid}")
 
-@app.post('/crossout/<int:num>')
-def crossout(num):
+@app.post('/<string:sec>/crossout/<int:num>')
+def crossout(sec, num):
     "Mark the given log post as crossed out"
+    if sec not in SECTIONS:
+        abort(404)
     with get_db() as conn:
-        conn.execute("UPDATE log SET crossout = 1 WHERE num = ?", (num,))
+        conn.execute(f"UPDATE log_{sec} SET crossout = 1 WHERE num = ?", (num,))
     target = request.referrer or f'/?num={num}'
     return redirect(f"{target}#{num}")
 
 
 if __name__ == "__main__":
     init_db()
-    print("Server running → http://localhost:5000")
     app.run(debug=True, port=5000)
