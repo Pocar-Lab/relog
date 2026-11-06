@@ -27,10 +27,24 @@
           <input type="submit" id="submit" value="Search" autocomplete="on" />
           <details>
               <summary>Advanced Search</summary>
-              <input type="text" name="num" id="num" placeholder="Number" autocomplete="on" />
-              <input type="text" name="author" id="name" placeholder="Author" autocomplete="on" />
-              <input type="text" name="after" id="after" placeholder="After Date" autocomplete="on" />
-              <input type="text" name="before" id="before" placeholder="Before Date" autocomplete="on" />
+              <log-entry id="search">
+                  <log-num>
+                      <input type="text" name="num" id="num"
+                             placeholder="Number" autocomplete="on" />
+                  </log-num>
+                  <log-header>
+                      <log-authors>
+                          <input type="text" name="author" id="name"
+                                 placeholder="Author" autocomplete="on" />
+                      </log-authors>
+                      <log-datetime>
+                          <input type="text" name="after" id="after"
+                                 placeholder="After Date" autocomplete="on" />
+                          <input type="text" name="before" id="before"
+                                 placeholder="Before Date" autocomplete="on" />
+                      </log-datetime>
+                  </log-header>
+              </log-entry>
           </details>
       </form>
 
@@ -92,7 +106,7 @@
 
       <form action="/log" method="post" enctype=multipart/form-data>
           <log-entry>
-              <log-num>New Post</log-num>
+              <log-num><h3>New Log</h3></log-num>
               <log-post>
                   <log-header>
                       <log-authors>
