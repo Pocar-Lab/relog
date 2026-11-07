@@ -11,6 +11,35 @@
     <script src="/lightbox3.min.js"></script>
   </head>
   <body>
+
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/cal">Calendar</a></li>
+            <li><a href="#">Sections ▾</a>
+                <ul>
+                    {%- for sec, name in sections.items() -%}
+                        <li><a href="/{{ sec }}/log">{{ name }}</a></li>
+                    {%- endfor -%}
+                </ul>
+            </li>
+            <li><a href="#">People</a></li>
+            <li><a href="#">Links ▾</a>
+                <ul>
+                    <li><a href="https://umass-my.sharepoint.com/personal/pocar_umass_edu/_layouts/15/onedrive.aspx?FolderCTID=0x012000C895D4FF0DFF7041A310FEEEE816D055&id=%2Fpersonal%2Fpocar%5Fumass%5Fedu%2FDocuments%2FPocarLab%2D021%20Repository">
+                        Pocar OneDrive
+                    </a></li>
+                    <li><a href="https://umass-my.sharepoint.com/:x:/g/personal/pocar_umass_edu/cQqwO2A4SpOVR4pcaMeYZ_KWEgUCT1ES6_faaQovdArzgs-7cA">
+                        SiPM Usage Log
+                    </a></li>
+                    <li><a href="https://github.com/Pocar-Lab">Pocar GitHub</a></li>
+                    <li><a href="https://nexowiki.llnl.gov/index.php/Main_Page">nEXO Wiki</a></li>
+                    <li><a href="#">EXO Portal</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
     <main>
 
       <header>
