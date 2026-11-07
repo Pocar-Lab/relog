@@ -24,7 +24,15 @@ DB_PATH = "logbook.db"
 UPLOAD_FOLDER = 'static/upload'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-SECTIONS = [ 'borexino', 'darkside', 'exo', 'lxe', 'kumarlab', 'hfe', 'misc' ] # 'photosensor',
+SECTIONS = {
+    'borexino': 'Borexino',
+    'darkside': 'Darkside',
+    'exo': 'EXO Analysis',
+    'lxe': 'LXe System',
+    'kumar': 'Kumar Lab',
+    'hfe': 'HFE',
+    'misc': 'Misc',
+}
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -115,7 +123,8 @@ def logs(sec):
     curr_date = now().strftime("%Y-%m-%d")
     prev_date = inc_date(before or curr_date, -1)
     next_date = inc_date(after or curr_date, +1)
-    return render_template('index.html', logs=rows, title=title, sec=sec,
+    return render_template('index.html', logs=rows, title=title,
+                           sec=sec, sections=SECTIONS,
                            curr_date=curr_date, prev_date=prev_date, next_date=next_date)
 
 def upload_files(sec, files):
