@@ -86,6 +86,12 @@ def logs(sec):
     after = request.args.get('after', '').strip()
     text = request.args.get('q', '').strip()
 
+    today = f"{now():%Y-%m-%d}"
+
+    if not before and not after:
+        before = today
+        after = today
+
     # TODO pull out to func
     query = f"SELECT * FROM log_{sec} WHERE "
     title = "Logs "
@@ -111,13 +117,13 @@ def logs(sec):
         params.append(f"%{text}%")
     query += " 1=1 ORDER BY num ASC"
 
-    if before == after and before:
-        title += f"on {before} " # TODO change to today when current date
+    if before == today and after == today:
+        title += f"from Today "
     else:
         if before:
-            title += f"before {before} "
-        if after:
-            title += f"after {after} "
+            title += f"from {after} "
+        if after and not after == before:
+            title += f"to {before} "
 
     rows = get_db().execute(query, params).fetchall()
     curr_date = now().strftime("%Y-%m-%d")
