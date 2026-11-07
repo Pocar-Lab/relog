@@ -35,6 +35,9 @@ log-num a[href] {
     color: var(--cfg);
     text-decoration: none;
 }
+log-datetime a[href] {
+    color: var(--cfg);
+}
 log-post {
     flex: 0 4 100%;
     display: block;
