@@ -14,12 +14,12 @@
     <main>
 
       <header>
-        <h1>Logbook</h1>
-        <p>Simple logbook for recording daily lab notes</p>
-        <h3>{{ title }}</h3>
-        <a href='/?before={{prev_date}}&after={{prev_date}}'>Back</a>
-        <a href='/?before={{curr_date}}&after={{curr_date}}'>Today</a>
-        <a href='/?before={{next_date}}&after={{next_date}}'>Forward</a>
+        <h1>Re:log</h1>
+        <p>Research logbook for collaborative daily lab notes</p>
+        <h3>{{ sec }} {{ title }}</h3>
+        <a href='/{{sec}}/log?before={{prev_date}}&after={{prev_date}}'>Back</a>
+        <a href='/{{sec}}/log?before={{curr_date}}&after={{curr_date}}'>Today</a>
+        <a href='/{{sec}}/log?before={{next_date}}&after={{next_date}}'>Forward</a>
       </header>
 
       <form action="/" method="GET" class="log-search">
@@ -52,7 +52,7 @@
           {%- for log in logs -%}
             <log-entry id="{{log['num']}}">
                 <log-num>
-                    <a href="/?before={{ log['date'].split(' ', 1)[0] }}&after={{ log['date'].split(' ', 1)[0] }}#{{ log['num'] }}">
+                    <a href="/{{sec}}/log?before={{ log['date'].split(' ', 1)[0] }}&after={{ log['date'].split(' ', 1)[0] }}#{{ log['num'] }}">
                         #{{ log['num'] }}
                     </a>
                 </log-num>
@@ -60,7 +60,7 @@
                     <log-header>
                         <log-authors>{{ log['authors'] }}</log-authors>
                         <log-datetime>
-                            <a href="/?before={{ log['date'].split(' ', 1)[0] }}&after={{ log['date'].split(' ', 1)[0] }}"
+                            <a href="/{{sec}}/log?before={{ log['date'].split(' ', 1)[0] }}&after={{ log['date'].split(' ', 1)[0] }}"
                                title="Submitted: {{ log['submit'] }}">
                                 {{ log['date'] }}
                             </a>
@@ -70,7 +70,7 @@
                                    #{{ log['num'] }} by {{ log['authors'] }}?</p>
                                 <p>This cannot be undone!</p>
                                 <button commandfor="crossout-dialog-{{log['num']}}" command="close">Cancel</button>
-                                <form action="/crossout/{{ log['num'] }}" method="post">
+                                <form action="/{{sec}}/crossout/{{ log['num'] }}" method="post">
                                     <button type="submit">Crossout</button>
                                 </form>
                             </dialog>
@@ -85,14 +85,15 @@
                         </p>
                     </log-note>
                     {%- for file in log['files'].split(':') -%}
-                    <!-- TODO save alt text w/ file and disp as figure with figure caption -->
+                    <!-- TODO save alt text w/ file and display as figure with figure caption -->
                     <!-- TODO label fig as #post.fignum -->
                         {%- if is_file_img(file) -%}
-                            <a href="/upload/{{ file }}" data-lightbox="{{ log['num'] }}">
-                                <img src="/upload/{{ file }}" alt="{{ file }}"/>
+                            <a href="/upload/{{sec}}/{{ file }}" data-lightbox="{{ log['num'] }}">
+                                <img src="/upload/{{sec}}/{{ file }}" alt="{{ file }}"/>
                             </a>
                         {%- else -%}
-                            <a href="/upload/{{ file }}">
+                            <!-- TODO static image preview for other common file extensions, or generic file for others -->
+                            <a href="/upload/{{sec}}/{{ file }}">
                                 {{ file }}
                             </a>
                         {%- endif -%}
@@ -104,7 +105,7 @@
 
       <hr style="padding: 2em;">
 
-      <form action="/log" method="post" enctype=multipart/form-data>
+      <form action="/{{sec}}/log" method="post" enctype=multipart/form-data>
           <log-entry>
               <log-num><h3>New Log</h3></log-num>
               <log-post>

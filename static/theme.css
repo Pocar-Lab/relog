@@ -24,11 +24,11 @@
         --cbg:    #003355;
         --cdark: #fff;
         --clight: #002d4c;
+        --clink: #b4d5fe;
         --cmed: #005454;
     }
-  /* body a { */
-  /*   color: #610e7f; */
-  /* } */
+    a:visited { color: #cc99ff; }  /* ~6:1 */
+    a:hover, a:focus { color: #ffffff; }
 }
 
 @media (max-width: 600px) {
