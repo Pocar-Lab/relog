@@ -42,9 +42,10 @@ Then navigate to given URL in your web browser.
 
 # References
 
-2. C. Gross, A. Stepinski, and D. Akşimşek, *Hypermedia systems*, 2023, https://hypermedia.systems/
-3. Python Software Foundation, Python, Version 3.14.3, 2026
-4. Pallets, *Flask (version 3.1)*. [Computer Software](https://flask.palletsprojects.com/) Accessed 6 Nov. 2026
+1. C. Gross, A. Stepinski, and D. Akşimşek, *Hypermedia systems*, 2023, https://hypermedia.systems/
+2. Python Software Foundation, *Python*, version 3.14.3, 2026, https://www.python.org
+3. Pallets, *Flask*, version 3.1.3, 2026, https://flask.palletsprojects.com/
+4. SQLite Consortium, *SQLite*, version 3.50.2, 2026, https://www.sqlite.org/
 
 ## AI Use
 
