@@ -108,6 +108,10 @@ def fmt_ts(ts, fmt="%Y-%m-%d"):
 def serve_static(path):
     return send_from_directory('static', path)
 
+@app.context_processor
+def inject_globals():
+    return dict(sections=SECTIONS)
+
 # TODO markdown to html files in wiki/
 
 # Home page
