@@ -40,7 +40,7 @@ def get_db():
 
 @auth.route('/login')
 def login():
-    return render_template('login.html')
+    return render_template('login.html', title="Login")
 
 @auth.post('/login')
 def login_post():
@@ -62,7 +62,7 @@ def login_post():
 
 @auth.route('/signup')
 def signup():
-    return render_template('signup.html')
+    return render_template('signup.html', title="Signup")
 
 @auth.post('/signup')
 def signup_post():
