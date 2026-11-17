@@ -410,16 +410,19 @@ header nav {
   z-index: 41;
   box-shadow: 0vw -50vw 0 50vw var(--clight),
     0 calc(-50vw + 2px) 4px 50vw var(--cdark);
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: space-between;
 }
 nav ul {
   list-style-type: none;
 }
-nav ul:first-child {
+nav > ul {
   margin: 0;
   padding: 0;
   overflow: visible;
 }
-nav ul:first-child > li {
+nav > ul > li {
   display: inline-block;
   margin: 0;
   padding: 0.8rem 0.6rem;
