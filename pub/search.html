@@ -1,0 +1,92 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+{% set filters = {'q': query, 'section': section, 'after': after, 'before': before} %}
+<form class="entry-form search-form" action="{{ url_for('search', _anchor='search-results') }}" method="get" role="search">
+    <input class="entry-form-text" type="search" name="q" value="{{ query }}"
+           placeholder="Search log entries…"
+           aria-label="Search log entries" autocomplete="off"
+           {% if not request.args %}autofocus{% endif %} />
+
+    <div class="entry-form-toolbar search-filters">
+        <label>
+            <span>Section</span>
+            <select name="section">
+                <option value="">All sections</option>
+                {% for sec, name in sections.items() %}
+                    <option value="{{ sec }}"{% if section == sec %} selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            <span>From</span>
+            <input type="date" name="after" value="{{ after }}" />
+        </label>
+        <label>
+            <span>Through</span>
+            <input type="date" name="before" value="{{ before }}" />
+        </label>
+        <button type="submit" class="entry-form-action">Search</button>
+    </div>
+    {% if filter_error %}
+        <p class="search-filter-error" role="alert">{{ filter_error }}</p>
+    {% endif %}
+</form>
+
+{% include 'cal.html' %}
+
+{% if results is not none %}
+<div id="search-results" class="search-results" role="region" aria-labelledby="search-results-title">
+    <h2 id="search-results-title">
+        {% if query %}Results for “{{ query }}”
+        {% elif selected_day %}Entries for
+        {% elif after or before %}Entries in this period{% else %}Recent entries{% endif %}
+        {% if selected_day %}
+            {% if query %} · {% endif %}
+            <time datetime="{{ selected_day.isoformat() }}">{{ selected_day.strftime('%d %b %Y') }}</time>
+        {% endif %}
+        {% if section %} · {{ sections[section] }}{% endif %}
+    </h2>
+    {% if results %}
+        <ul class="search-result-list">
+            {% for entry in results %}
+                <li>
+                    <div class="search-result-meta">
+                        <a href="{{ url_for('logs', sec=entry.section, num=entry.num, _anchor=entry.num | string) }}">
+                            {{ sections[entry.section] }} #{{ entry.num }}
+                        </a>
+                        <span class="entry-author" data-accent="{{ entry.author_accent }}">{{ entry.authors }}</span>
+                        {% if entry.date is not none %}
+                            <time datetime="{{ entry.date | ts('%Y-%m-%dT%H:%M:%S') }}">{{ entry.date | ts('%Y-%m-%d %H:%M') }}</time>
+                        {% endif %}
+                    </div>
+                    {% set reference, note = entry.note | entry_reference %}
+                    <p>
+                        {%- if entry.crossout %}<del>{% endif -%}
+                        {%- if reference %}
+                            <a href="{{ url_for('entry_thread', sec=entry.section, reference=reference) }}">Re: #{{ reference }}</a>
+                        {% endif -%}
+                        {{ note | truncate(210, True, '…', 0) }}
+                        {%- if entry.crossout %}</del>{% endif -%}
+                    </p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No entries found.</p>
+    {% endif %}
+    {% if page > 1 or has_more %}
+        <nav class="search-result-pages" aria-label="Search results pages">
+            {% if page > 1 %}
+                <a href="{{ url_for('search', year=calendar.first.year, month=calendar.first.month, page=page - 1, _anchor='search-results', **filters) }}">Newer results</a>
+            {% endif %}
+            {% if has_more %}
+                <a href="{{ url_for('search', year=calendar.first.year, month=calendar.first.month, page=page + 1, _anchor='search-results', **filters) }}">Older results</a>
+            {% endif %}
+        </nav>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

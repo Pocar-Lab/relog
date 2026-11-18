@@ -2,14 +2,30 @@
 
 {% block content %}
 
-<header class="home-header">
-    <h1>{{ title }}</h1>
-</header>
+{% if current_user.is_authenticated %}
+    {% include '_entry_composer.html' %}
 
-<ul class="section-links" aria-label="Logbook sections">
-    {% for sec, name in sections.items() %}
-        <li><a href="/{{ sec }}/log">{{ name }}</a></li>
-    {% endfor %}
-</ul>
+    <nav class="section-links" aria-label="Logbook sections">
+        {% for column in (('exo', 'lxe', 'kumar'), ('darkside', 'hfe', 'misc', 'borexino')) %}
+            <ul class="section-link-column" role="list">
+                {% for sec in column if sec in sections %}
+                    <li><a href="{{ url_for('logs', sec=sec) }}">{{ sections[sec] }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    </nav>
+{% else %}
+    {% include '_account_form.html' %}
+{% endif %}
+
+<footer class="home-wordmark">
+    <picture>
+        <source media="(prefers-color-scheme: dark)"
+                srcset="{{ url_for('serve_static', path='umass-amherst-dark-logo.svg') }}"
+                width="212" height="56" />
+        <img src="{{ url_for('serve_static', path='umass-amherst-wordmark.png') }}"
+             width="427" height="112" alt="UMass Amherst" />
+    </picture>
+</footer>
 
 {% endblock %}

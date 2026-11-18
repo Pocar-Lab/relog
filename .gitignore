@@ -4,3 +4,6 @@
 # Logbook files
 *.db
 static/upload
+
+# Local Flask configuration
+/instance/

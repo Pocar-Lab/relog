@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/lightbox3.css">
     <script src="/lightbox3.min.js"></script>
   </head>
-  <body class="relog-layout">
+  <body class="relog-layout{% if not current_user.is_authenticated %} relog-signed-out{% endif %}">
 
     <nav class="sidebar" aria-label="Main navigation">
         <ul class="sidebar-menu">
@@ -21,52 +21,65 @@
                     </svg>
                 </a>
             </li>
-            <li>
-                <a class="sidebar-item" href="{{ url_for('cal') }}" aria-label="Calendar"{% if request.endpoint == 'cal' %} aria-current="page"{% endif %}>
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <rect x="3" y="5" width="18" height="16" rx="2"/>
-                        <path d="M7 3v4m10-4v4M3 10h18"/>
-                    </svg>
-                </a>
-            </li>
-            <li>
-                <a class="sidebar-item" href="#" aria-label="People">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <circle cx="9" cy="8" r="3"/>
-                        <path d="M3 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2m2-15a3 3 0 0 1 0 6m4 9v-2a4 4 0 0 0-3-4"/>
-                    </svg>
-                </a>
-            </li>
-            <li>
-                <details class="sidebar-group">
-                    <summary class="sidebar-item" aria-label="Links">
+            {% if current_user.is_authenticated %}
+                <li>
+                    <a class="sidebar-item" href="{{ url_for('search') }}" aria-label="Search and calendar"{% if request.endpoint == 'search' %} aria-current="page"{% endif %}>
                         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="m10 14 4-4m-6 2-2.5 2.5a3.5 3.5 0 0 0 5 5l2.5-2.5m-2-10 2.5-2.5a3.5 3.5 0 0 1 5 5L16 12"/>
+                            <circle cx="10.5" cy="10.5" r="5.5"/>
+                            <path d="m15 15 4 4"/>
                         </svg>
-                    </summary>
-                    <ul class="sidebar-submenu">
-                        <li><a href="https://umass-my.sharepoint.com/personal/pocar_umass_edu/_layouts/15/onedrive.aspx?FolderCTID=0x012000C895D4FF0DFF7041A310FEEEE816D055&id=%2Fpersonal%2Fpocar%5Fumass%5Fedu%2FDocuments%2FPocarLab%2D021%20Repository">Pocar OneDrive</a></li>
-                        <li><a href="https://umass-my.sharepoint.com/:x:/g/personal/pocar_umass_edu/cQqwO2A4SpOVR4pcaMeYZ_KWEgUCT1ES6_faaQovdArzgs-7cA">SiPM Usage Log</a></li>
-                        <li><a href="https://github.com/Pocar-Lab">Pocar GitHub</a></li>
-                        <li><a href="https://nexowiki.llnl.gov/index.php/Main_Page">nEXO Wiki</a></li>
-                        <li><a href="#">EXO Portal</a></li>
-                    </ul>
-                </details>
-            </li>
+                    </a>
+                </li>
+                <li>
+                    <a class="sidebar-item" href="#" aria-label="People">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <circle cx="9" cy="8" r="3"/>
+                            <path d="M3 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2m2-15a3 3 0 0 1 0 6m4 9v-2a4 4 0 0 0-3-4"/>
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <details class="sidebar-group" name="sidebar-popover">
+                        <summary class="sidebar-item" aria-label="Links">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="m10 14 4-4m-6 2-2.5 2.5a3.5 3.5 0 0 0 5 5l2.5-2.5m-2-10 2.5-2.5a3.5 3.5 0 0 1 5 5L16 12"/>
+                            </svg>
+                        </summary>
+                        <ul class="sidebar-submenu" role="list" aria-label="Lab links">
+                            <li><a href="https://umass-my.sharepoint.com/personal/pocar_umass_edu/_layouts/15/onedrive.aspx?FolderCTID=0x012000C895D4FF0DFF7041A310FEEEE816D055&id=%2Fpersonal%2Fpocar%5Fumass%5Fedu%2FDocuments%2FPocarLab%2D021%20Repository">Pocar OneDrive</a></li>
+                            <li><a href="https://umass-my.sharepoint.com/:x:/g/personal/pocar_umass_edu/cQqwO2A4SpOVR4pcaMeYZ_KWEgUCT1ES6_faaQovdArzgs-7cA">SiPM Usage Log</a></li>
+                            <li><a href="https://github.com/Pocar-Lab">Pocar GitHub</a></li>
+                            <li><a href="https://nexowiki.llnl.gov/index.php/Main_Page">nEXO Wiki</a></li>
+                            <li><a href="#">EXO Portal</a></li>
+                        </ul>
+                    </details>
+                </li>
+            {% endif %}
         </ul>
 
-        <div class="sidebar-account" role="img" aria-label="Account">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <circle cx="12" cy="8" r="3.5"/>
-                <path d="M5 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/>
-            </svg>
-        </div>
+        {% if current_user.is_authenticated %}
+            <details class="sidebar-group sidebar-account-menu" name="sidebar-popover">
+                <summary class="sidebar-account" aria-label="Account" data-accent="{{ current_user.accent }}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <circle cx="12" cy="8" r="3.5"/>
+                        <path d="M5 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/>
+                    </svg>
+                </summary>
+                <ul class="sidebar-submenu" role="list" aria-label="Account actions">
+                    <li><a href="{{ url_for('auth.account') }}"{% if request.endpoint == 'auth.account' %} aria-current="page"{% endif %}>Settings</a></li>
+                    <li><a href="{{ url_for('auth.logout') }}">Sign out</a></li>
+                </ul>
+            </details>
+        {% endif %}
     </nav>
 
     <main>
-
-        {% block content %}{% endblock %}
-
+        <div class="page-content">
+            <header class="page-heading">
+                <h1>{{ title }}</h1>
+            </header>
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
   </body>

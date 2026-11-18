@@ -2,37 +2,6 @@
 
 {% block content %}
 
-<header>
-    <h1>{{ title }}</h1>
-</header>
-
-<main>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="notification is-danger">
-                {{ messages[0] }}
-            </div>
-        {% endif %}
-    {% endwith %}
-
-    <form action="/login" method="POST" class="relog-login">
-        <fieldset>
-            <legend>Login</legend>
-            <label for="name">Username or E-Mail:</label>
-            <input type="text" name="email" id="email" required />
-
-            <label for="password">Password:</label>
-            <input type="password" name="password" id="password" required />
-
-            <input type="submit" value="Login" />
-        </fieldset>
-    </form>
-
-    <label>Don't have an account?</label>
-    <a href="/signup">
-        <button>Signup</button>
-    </a>
-
-</main>
+{% include '_account_form.html' %}
 
 {% endblock %}
