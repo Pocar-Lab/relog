@@ -1,40 +1,43 @@
 /* Classless.css v1.1 */
 
-:root, html {
-    --rem: 14px;
-    --navpos: absolute; /* fixed | absolute */
-    /* --width: 50rem; */
-    --width: 80%;
-    --font-p: 1.4em/2 "CMU Serif", serif;
-    --font-h: 1.4em/1.5 "CMU Bright", serif;
-    --font-c: .9em/1.4 "CMU Typewriter Text", monospace;
-    --ornament: "‹‹‹ ›››";
-    --border: 1px solid var(--cmed);
-    /* foreground   | background color */
-    --cfg:   #111;    --cbg:    #fffff8;
-    --cdark: #111;    --clight: #fffff8;
-    --cmed: #b4d5fe;
-    --clink: #07c;
-    --cemph: #088;    --cemphbg: #0881;
+/* Re:log's two palettes share the same type and control styles. */
+:root {
+  color-scheme: light dark;
+  --rem: 1rem;
+  --width: 72rem;
+  --font-stack: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-p: 1rem/1.6 var(--font-stack);
+  --font-h: 1rem/1.4 var(--font-stack);
+  --font-c: .9em/1.5 ui-monospace, Consolas, monospace;
+  --ornament: "‹‹‹ ›››";
+  --radius: 0.5rem;
+  --border: 1px solid var(--cmed);
+  --cfg: #191919;
+  --cbg: #f7f7f7;
+  --clight: #ffffff;
+  --cmed: #d4d4d4;
+  --cemphbg: #eeeeee;
+  --cdark: var(--cfg);
+  --clink: var(--cfg);
+  --cemph: var(--cfg);
+  --muted: #545454;
+  --control-border: #767676;
+  --focus: #343434;
+  --action-hover: #404040;
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
-        --cfg:   #ffffff;
-        --cbg:    #003355;
-        --cdark: #fff;
-        --clight: #002d4c;
-        --clink: #b4d5fe;
-        --cmed: #005454;
-    }
-    a:visited { color: #cc99ff; }  /* ~6:1 */
-    a:hover, a:focus { color: #ffffff; }
-}
-
-@media (max-width: 600px) {
-    :root {
-        --width: 98%;
-    }
+  :root {
+    --cfg: #f2f2f2;
+    --cbg: #151515;
+    --clight: #202020;
+    --cmed: #454545;
+    --cemphbg: #2b2b2b;
+    --muted: #b5b5b5;
+    --control-border: #8c8c8c;
+    --focus: #eeeeee;
+    --action-hover: #d6d6d6;
+  }
 }
 
 /* 2. Reset –––––––––––––––––––––––––––––––––––––––––––– */
@@ -54,10 +57,9 @@ ul, ol, dl, fieldset, pre, pre > code {
 	overflow: auto hidden;
 	text-align: center;
 }
-video, summary, input, select { outline: none; }
 
 /* reset clickable things  (FF Bug: select:hover prevents usage) */
-a, button, select, summary {
+a, button, select, summary, input[type="submit"] {
     color: var(--clink);
     cursor: pointer;
 }
@@ -74,8 +76,7 @@ body {
   max-width: var(--width);
   font: var(--font-p);
   color: var(--cfg);
-  padding: 3rem 0.6rem 0;
-  overflow-x: hidden;
+  padding: 0 clamp(0.75rem, 3vw, 1.5rem) 3rem;
 }
 body > footer {
   margin: 10rem 0 0;
@@ -87,19 +88,15 @@ p {
 
 /* links */
 a[href] {
-  text-decoration: underline solid 1.5px var(--cmed);
-  text-underline-position: under;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
 }
-a[href^="#"] {
-  text-decoration: none;
+a:hover {
+  text-decoration-thickness: 2px;
 }
-a:hover,
-button:not([disabled]):hover,
-summary:hover,
-select:hover {
-  filter: brightness(92%);
-  color: var(--cemph);
-  border-color: var(--cemph);
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 /* lists */
@@ -131,17 +128,16 @@ h4 + h5 {
   padding-top: 0;
 }
 h1 {
-  font-size: 2.2em;
-  font-weight: bold;
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  font-weight: 650;
 }
 h2 {
-  font-size: 2em;
-  font-weight: 300;
-  font-variant: small-caps;
+  font-size: 1.35rem;
+  font-weight: 650;
 }
 h3 {
-  font-size: 1.5em;
-  font-weight: 400;
+  font-size: 1.15rem;
+  font-weight: 650;
 }
 h4 {
   font-size: 1.1em;
@@ -397,61 +393,171 @@ abbr[title],
   cursor: help;
 }
 
-/* navbar */
-nav + * {
-  margin-top: 3rem;
+/* Re:log sidebar */
+@media screen {
+  .relog-layout {
+    --sidebar-width: 4rem;
+    display: grid;
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+    min-height: 100vh;
+    max-width: none;
+    padding: 0;
+  }
+
+  .relog-layout > main {
+    width: min(100%, var(--width));
+    margin-inline: auto;
+    padding: 1.75rem clamp(0.75rem, 3vw, 1.5rem) 3rem;
+  }
+
+  .sidebar {
+    position: sticky;
+    inset-block-start: 0;
+    align-self: start;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 1rem 0.5rem;
+    background: var(--clight);
+    border-inline-end: var(--border);
+  }
 }
-body > nav,
-header nav {
-  position: var(--navpos);
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 41;
-  box-shadow: 0vw -50vw 0 50vw var(--clight),
-    0 calc(-50vw + 2px) 4px 50vw var(--cdark);
-}
-nav ul {
-  list-style-type: none;
-}
-nav ul:first-child {
+
+.sidebar-menu,
+.sidebar-submenu {
+  list-style: none;
   margin: 0;
   padding: 0;
+  text-align: start;
+}
+
+.sidebar-menu {
+  display: grid;
+  gap: 0.25rem;
+  flex: none;
   overflow: visible;
 }
-nav ul:first-child > li {
-  display: inline-block;
+
+.sidebar li {
   margin: 0;
-  padding: 0.8rem 0.6rem;
 }
-nav ul > li > ul {
+
+.sidebar-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.sidebar a,
+.sidebar summary {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+
+.sidebar .sidebar-item {
+  justify-content: center;
+}
+
+.sidebar svg {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sidebar summary::-webkit-details-marker {
   display: none;
-  width: auto;
-  position: absolute;
-  margin: 0.5rem 0;
-  padding: 1rem 2rem;
-  background-color: var(--clight);
+}
+
+.sidebar a:hover,
+.sidebar summary:hover,
+.sidebar [aria-current="page"],
+.sidebar-group[open] > summary {
+  background: var(--cemphbg);
+}
+
+.sidebar-submenu {
+  position: fixed;
+  inset-block-start: 1rem;
+  inset-inline-start: var(--sidebar-width);
+  width: min(13rem, calc(100vw - var(--sidebar-width) - 0.5rem));
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  padding: 0.375rem;
+  background: var(--clight);
   border: var(--border);
-  border-radius: 4px;
-  z-index: 42;
+  border-radius: var(--radius);
 }
-nav ul > li > ul > li {
-  white-space: nowrap;
+
+.sidebar-submenu a {
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
 }
-nav ul > li:hover > ul {
+
+.sidebar-account {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-block-start: auto;
+  color: var(--muted);
+  border: var(--border);
+  border-radius: 50%;
+}
+
+.sidebar-item,
+.sidebar-account {
+  position: relative;
+}
+
+.sidebar-item::after,
+.sidebar-account::after {
+  content: attr(aria-label);
+  display: none;
+  position: absolute;
+  z-index: 1;
+  inset-inline-start: calc(100% + 0.75rem);
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  width: max-content;
+  padding: 0.25rem 0.5rem;
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--clight);
+  color: var(--cfg);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.sidebar-item:hover::after,
+.sidebar-item:focus-visible::after,
+.sidebar-account:hover::after {
   display: block;
 }
-@media (max-width: 40rem) {
-  nav ul:first-child > li:first-child:after {
-    content: " \25BE";
-  }
-  nav ul:first-child > li:not(:first-child):not(.sticky) {
-    display: none;
-  }
-  nav ul:first-child:hover > li:not(:first-child):not(.sticky) {
-    display: block;
-    float: none !important;
-    padding: 0.3rem 0.6rem;
+
+.sidebar-group[open] > summary::after {
+  display: none;
+}
+
+@media screen and (max-height: 18rem) {
+  .sidebar {
+    position: relative;
   }
 }
 
@@ -459,34 +565,29 @@ nav ul > li:hover > ul {
 summary > * {
   display: inline;
 }
-.card, details {
-  display: block;
+.card,
+details {
   margin: 0.5rem 0 1rem;
-  padding: 0 0.6rem;
-  border-radius: 4px;
-  overflow: hidden;
+  padding: 0.5rem 0.75rem;
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--clight);
+  text-align: left;
+  overflow: visible;
 }
-.card, details[open] {
-  outline: 1px solid var(--cmed);
+summary {
+  font-weight: 550;
 }
 .card > img:first-child {
-  margin: -3px -0.6rem;
-  max-width: calc(100% + 1.2rem);
+  display: block;
+  margin-bottom: 0.5rem;
 }
-summary:hover,
-details[open] summary,
-.card > p:first-child {
-  box-shadow: inset 0 0 0 2em var(--clight), 0 -0.8rem 0 0.8rem var(--clight);
-}
-.hint {
-  --cmed: var(--cemph);
-  --clight: var(--cemphbg);
-  background-color: var(--clight);
+.hint,
+.warn {
+  background: var(--cemphbg);
 }
 .warn {
-  --cmed: #c11;
-  --clight: #e221;
-  background-color: var(--clight);
+  border-inline-start: 2px solid var(--control-border);
 }
 
 /* big first letter */
@@ -524,63 +625,84 @@ main aside {
   }
 }
 
-/* forms and inputs  */
-textarea, input:not([type="range"]), button, select {
-  font: var(--font-h);
-  border-radius: 4px;
-  border: 1.5px solid var(--cmed);
-  padding: 0.4em 0.8em;
+/* forms and inputs */
+textarea,
+input:where(:not([type="range"], [type="checkbox"], [type="radio"])),
+button,
+select,
+input[type="file"]::file-selector-button {
+  font: inherit;
+  padding: 0.5rem 0.75rem;
   color: var(--cfg);
-  background-color: var(--clight);
+  background: var(--clight);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius);
 }
-fieldset select,
-input:not([type="checkbox"]):not([type="radio"]) {
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+textarea {
   display: block;
   width: 100%;
-  margin: 0 0 1rem;
+  min-width: 0;
 }
-button, select {
-  font-weight: bold;
-  margin: 0.5em;
-  border: 1.5px solid var(--clink);
-  color: var(--clink);
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+button,
+select {
+  min-height: 2.75rem;
 }
-button {
-  padding: 0.4em 1em;
-  font-size: 85%;
-  letter-spacing: 0.1em;
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: 1;
 }
-button[disabled] {
-  color: var(--cdark);
-  border-color: var(--cmed);
+input[type="file"]::file-selector-button {
+  padding: 0.25rem 0.625rem;
+  margin-inline-end: 0.5rem;
+  background: var(--cemphbg);
+  cursor: pointer;
+}
+button,
+input[type="submit"] {
+  font-weight: 600;
+}
+button:not([disabled]):hover,
+select:not([disabled]):hover {
+  background: var(--cemphbg);
+}
+input[type="submit"] {
+  background: var(--cfg);
+  border-color: var(--cfg);
+  color: var(--clight);
+}
+input[type="submit"]:not([disabled]):hover {
+  background: var(--action-hover);
+  border-color: var(--action-hover);
+}
+:where(button, input, select, textarea):disabled {
+  opacity: 0.65;
+  cursor: default;
 }
 fieldset {
-  border-radius: 4px;
+  margin: 0;
+  padding: 0.75rem 1rem;
   border: var(--border);
-  padding: 0.5em 1em;
+  border-radius: var(--radius);
+  text-align: left;
+  overflow: visible;
 }
-textarea:hover,
-input:not([type="checkbox"]):not([type*="ra"]):hover {
-  border: 1.5px solid var(--cemph);
-}
-textarea:focus,
-input:not([type="checkbox"]):not([type*="ra"]):focus {
-  border: 1.5px solid var(--clink);
-  box-shadow: 0 0 5px var(--clink);
-}
-p > button {
-  padding: 0 0.5em;
-  margin: 0 0.5em;
-}
-p > select {
-  padding: 0;
-  margin: 0 0.5em;
-}
-
 dialog {
   position: fixed;
   inset: 0;
+  width: min(25rem, calc(100% - 2rem));
   margin: auto;
+  padding: 1.25rem;
+  color: var(--cfg);
+  background: var(--clight);
+  border: var(--border);
+  border-radius: var(--radius);
+}
+dialog::backdrop {
+  background: rgb(0 0 0 / 50%);
 }
 
 /* 5. Bootstrap-compatible classes ––––––––––––––––––––– */

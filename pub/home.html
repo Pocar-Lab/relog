@@ -2,14 +2,14 @@
 
 {% block content %}
 
-<div align="center">
-    {%- for sec, name in sections.items() -%}
-        <a href="/{{ sec }}/log">
-            <button>
-                {{ name }}
-            </button>
-        </a>
-    {%- endfor -%}
-</div>
+<header class="home-header">
+    <h1>{{ title }}</h1>
+</header>
+
+<ul class="section-links" aria-label="Logbook sections">
+    {% for sec, name in sections.items() %}
+        <li><a href="/{{ sec }}/log">{{ name }}</a></li>
+    {% endfor %}
+</ul>
 
 {% endblock %}

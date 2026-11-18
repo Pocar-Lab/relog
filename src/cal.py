@@ -61,7 +61,7 @@ def cal_gen(conn, year, month, first_weekday, sections):
                 if num > 0:
                     entries_html += (
                         '<li>'
-                            f'<a href="/{sec}/log?before={date_str}&after={date_str}"'
+                            f'<a href="/{sec}/log?before={date_str}&amp;after={date_str}">'
                                 f'<cal-sec>{sec_name}: </cal-sec>'
                                 f'<cal-num>{num}</cal-num>'
                             '</a>'

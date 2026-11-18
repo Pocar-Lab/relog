@@ -3,41 +3,64 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>{{ title }}</title>
     <link rel="stylesheet" href="/theme.css">
     <link rel="stylesheet" href="/relog.css">
-    <link rel="stylesheet" href="/font/fonts.css">
     <link rel="stylesheet" href="/lightbox3.css">
     <script src="/lightbox3.min.js"></script>
   </head>
-  <body>
+  <body class="relog-layout">
 
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/cal">Calendar</a></li>
-            <li><a href="#">Sections ▾</a>
-                <ul>
-                    {%- for sec, name in sections.items() -%}
-                        <li><a href="/{{ sec }}/log">{{ name }}</a></li>
-                    {%- endfor -%}
-                </ul>
+    <nav class="sidebar" aria-label="Main navigation">
+        <ul class="sidebar-menu">
+            <li>
+                <a class="sidebar-item" href="{{ url_for('home') }}" aria-label="Home"{% if request.endpoint == 'home' %} aria-current="page"{% endif %}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M3 10.5 12 3l9 7.5M5 9v12h14V9m-9 12v-7h4v7"/>
+                    </svg>
+                </a>
             </li>
-            <li><a href="#">People</a></li>
-            <li><a href="#">Links ▾</a>
-                <ul>
-                    <li><a href="https://umass-my.sharepoint.com/personal/pocar_umass_edu/_layouts/15/onedrive.aspx?FolderCTID=0x012000C895D4FF0DFF7041A310FEEEE816D055&id=%2Fpersonal%2Fpocar%5Fumass%5Fedu%2FDocuments%2FPocarLab%2D021%20Repository">
-                        Pocar OneDrive
-                    </a></li>
-                    <li><a href="https://umass-my.sharepoint.com/:x:/g/personal/pocar_umass_edu/cQqwO2A4SpOVR4pcaMeYZ_KWEgUCT1ES6_faaQovdArzgs-7cA">
-                        SiPM Usage Log
-                    </a></li>
-                    <li><a href="https://github.com/Pocar-Lab">Pocar GitHub</a></li>
-                    <li><a href="https://nexowiki.llnl.gov/index.php/Main_Page">nEXO Wiki</a></li>
-                    <li><a href="#">EXO Portal</a></li>
-                </ul>
+            <li>
+                <a class="sidebar-item" href="{{ url_for('cal') }}" aria-label="Calendar"{% if request.endpoint == 'cal' %} aria-current="page"{% endif %}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <rect x="3" y="5" width="18" height="16" rx="2"/>
+                        <path d="M7 3v4m10-4v4M3 10h18"/>
+                    </svg>
+                </a>
+            </li>
+            <li>
+                <a class="sidebar-item" href="#" aria-label="People">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <circle cx="9" cy="8" r="3"/>
+                        <path d="M3 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2m2-15a3 3 0 0 1 0 6m4 9v-2a4 4 0 0 0-3-4"/>
+                    </svg>
+                </a>
+            </li>
+            <li>
+                <details class="sidebar-group">
+                    <summary class="sidebar-item" aria-label="Links">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="m10 14 4-4m-6 2-2.5 2.5a3.5 3.5 0 0 0 5 5l2.5-2.5m-2-10 2.5-2.5a3.5 3.5 0 0 1 5 5L16 12"/>
+                        </svg>
+                    </summary>
+                    <ul class="sidebar-submenu">
+                        <li><a href="https://umass-my.sharepoint.com/personal/pocar_umass_edu/_layouts/15/onedrive.aspx?FolderCTID=0x012000C895D4FF0DFF7041A310FEEEE816D055&id=%2Fpersonal%2Fpocar%5Fumass%5Fedu%2FDocuments%2FPocarLab%2D021%20Repository">Pocar OneDrive</a></li>
+                        <li><a href="https://umass-my.sharepoint.com/:x:/g/personal/pocar_umass_edu/cQqwO2A4SpOVR4pcaMeYZ_KWEgUCT1ES6_faaQovdArzgs-7cA">SiPM Usage Log</a></li>
+                        <li><a href="https://github.com/Pocar-Lab">Pocar GitHub</a></li>
+                        <li><a href="https://nexowiki.llnl.gov/index.php/Main_Page">nEXO Wiki</a></li>
+                        <li><a href="#">EXO Portal</a></li>
+                    </ul>
+                </details>
             </li>
         </ul>
+
+        <div class="sidebar-account" role="img" aria-label="Account">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="8" r="3.5"/>
+                <path d="M5 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/>
+            </svg>
+        </div>
     </nav>
 
     <main>
