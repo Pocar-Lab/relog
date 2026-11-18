@@ -1,0 +1,58 @@
+{% macro attachment_picker() %}
+    <label class="entry-composer-attachment" title="Attach files">
+        <span class="entry-attachment-icon" aria-hidden="true"></span>
+        <input id="entry-attachments" type="file" name="files" aria-label="Attach files" multiple />
+    </label>
+{% endmacro %}
+
+{% if thread_number %}
+    {% set publish_url = url_for('log', sec=section, thread_number=thread_number) %}
+{% else %}
+    {% set publish_url = url_for('log', sec=section) if section else url_for('log') %}
+{% endif %}
+<form id="entry-composer" class="entry-form{% if section %} section-composer{% endif %}"
+      action="{{ publish_url }}" method="post" enctype="multipart/form-data"
+      {% if section %}aria-labelledby="section-composer-title"{% else %}aria-label="Write a log entry"{% endif %}>
+    {% if section %}
+        <h2 id="section-composer-title">{{ 'Reply' if thread_number else 'New entry' }}</h2>
+    {% endif %}
+    <div{% if thread_number %} class="entry-reply-editor"{% endif %}>
+        {% if thread_number %}
+            <input type="hidden" name="reply_to" value="{{ thread_number }}" />
+            <div id="entry-reply-reference" class="entry-reply-reference">Re: #{{ thread_number }}</div>
+        {% endif %}
+        <textarea id="entry-composer-text" class="entry-form-text" name="message" rows="4"
+                  placeholder="{{ 'Write a reply…' if thread_number else 'Write a log entry…' }}"
+                  aria-label="{{ 'Reply' if thread_number else 'Log entry' }}"
+                  {% if thread_number %}aria-describedby="entry-reply-reference"{% endif %}
+                  enterkeyhint="send" required></textarea>
+    </div>
+
+    <div class="entry-form-toolbar">
+        {% if not section %}
+            <div class="entry-composer-section">
+                {{ attachment_picker() }}
+                <select name="section" aria-label="Logbook section" required>
+                    <option value="">Choose a section</option>
+                    {% for sec, name in sections.items() %}
+                        <option value="{{ sec }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+
+        <div class="entry-composer-date">
+            <input type="datetime-local" name="datetime" value="{{ current_time }}" required aria-label="Date and time" />
+        </div>
+        {% if section %}{{ attachment_picker() }}{% endif %}
+        <div class="entry-composer-publish">
+            <input class="entry-composer-author" type="text" name="author"
+                   value="{{ current_user.name.strip() or current_user.get_id() }}"
+                   placeholder="Author" aria-label="Author" autocomplete="off"
+                   title="Separate multiple names with commas." />
+            <button type="submit" class="entry-form-action">Publish</button>
+        </div>
+    </div>
+    <ul id="entry-selected-files" class="entry-selected-files" role="list" aria-label="Attachments to publish" hidden></ul>
+</form>
+<script src="{{ url_for('serve_static', path='composer.js') }}" defer></script>

@@ -1,0 +1,42 @@
+{% set registering = request.endpoint == 'auth.signup' %}
+<div class="relog-login">
+    <form action="{{ url_for('auth.signup_post' if registering else 'auth.login_post') }}"
+          method="post" aria-label="{{ 'Register' if registering else 'Sign in' }}">
+        {% if request.endpoint == 'home' %}
+            <input type="hidden" name="from_home" value="1" />
+        {% endif %}
+
+        {% for message in get_flashed_messages() %}
+            <div class="notification" role="alert">{{ message }}</div>
+        {% endfor %}
+
+        <label for="account-identifier">{{ 'Username' if registering else 'Username or email' }}</label>
+        <input type="text" name="{{ 'user' if registering else 'email' }}" id="account-identifier"
+               autocomplete="username" autocapitalize="none" spellcheck="false"
+               {% if registering %}pattern="\S+" title="Enter a username without spaces."{% endif %} required />
+
+        <label for="account-password">Password</label>
+        <input type="password" name="password" id="account-password"
+               autocomplete="{{ 'new-password' if registering else 'current-password' }}" required />
+
+        {% if registering %}
+            <label for="account-name">Full name</label>
+            <input type="text" name="name" id="account-name" autocomplete="name" required />
+
+            <label for="account-email">Email</label>
+            <input type="email" name="email" id="account-email" autocomplete="email" required />
+        {% endif %}
+
+        <input type="submit" value="{{ 'Register' if registering else 'Sign in' }}" />
+    </form>
+    <p class="account-switch">
+        {% if registering %}
+            <a href="{{ url_for('auth.login') }}">Back to sign in</a>
+        {% else %}
+            <a href="{{ url_for('auth.signup') }}">Create an account</a>
+        {% endif %}
+    </p>
+</div>
+{% if registering %}
+    <script src="{{ url_for('static', filename='signup.js') }}" defer></script>
+{% endif %}

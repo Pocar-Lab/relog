@@ -2,122 +2,138 @@
 
 {% block content %}
 
-<header>
-    <h1>{{ title }}</h1>
-    <a href='/{{sec}}/log?before={{prev_date}}&after={{prev_date}}'>Back</a>
-    <a href='/{{sec}}/log?before={{curr_date}}&after={{curr_date}}'>Today</a>
-    <a href='/{{sec}}/log?before={{next_date}}&after={{next_date}}'>Forward</a>
-</header>
+<div class="section-log">
+    <section aria-labelledby="history-title">
+        <div class="log-history-header">
+            <h2 id="history-title">{{ history_title }}</h2>
+            {% if thread_number %}
+                <a href="{{ url_for('logs', sec=section) }}">Back to section</a>
+            {% elif earlier_day %}
+                <button type="button" id="earlier-entries" class="entry-form-action" aria-controls="section-entry-history"
+                        data-earlier-url="{{ url_for('logs', sec=section, after=earlier_day, before=earlier_day) }}"
+                        data-earlier-date="{{ earlier_day.strftime('%d %b %Y') }}"
+                        title="Show entries from {{ earlier_day.strftime('%d %b %Y') }}">Earlier entries</button>
+            {% endif %}
+        </div>
 
-<form action="/{{sec}}/log" method="GET" class="log-search">
-    <input type="search" name="q" id="q" placeholder="Search Logs..." autocomplete="on" />
-    <input type="submit" id="submit" value="Search" autocomplete="on" />
-    <details>
-        <summary>Advanced Search</summary>
-        <log-entry id="search">
-            <log-num>
-                <input type="text" name="num" id="num"
-                        placeholder="Number" autocomplete="on" />
-            </log-num>
-            <log-header>
-                <log-authors>
-                    <input type="text" name="author" id="name"
-                            placeholder="Author" autocomplete="on" />
-                </log-authors>
-                <log-datetime>
-                    <input type="text" name="after" id="after"
-                            placeholder="After Date" autocomplete="on" />
-                    <input type="text" name="before" id="before"
-                            placeholder="Before Date" autocomplete="on" />
-                </log-datetime>
-            </log-header>
-        </log-entry>
-    </details>
-</form>
-
-<log-entries>
-    {%- for log in logs -%}
-    <log-entry id="{{log['num']}}">
-        <log-num>
-            <a href="/{{sec}}/log?before={{ log['date']|ts }}&after={{ log['date']|ts }}#{{ log['num'] }}">
-                #{{ log['num'] }}
-            </a>
-        </log-num>
-        <log-post> <!-- TODO change to details? -->
-            <log-header>
-                <log-authors>{{ log['authors'] }}</log-authors>
-                <log-datetime>
-                    <a href="/{{sec}}/log?before={{ log['date']|ts }}&after={{ log['date']|ts }}"
-                        title="Submitted: {{ log['inked']|ts('%Y-%m-%d %H:%M') }}">
-                        {{ log['date']|ts('%Y-%m-%d %H:%M') }}
-                    </a>
-                    <button command="show-modal" commandfor="crossout-dialog-{{log['num']}}">✘</button>
-                    <dialog id="crossout-dialog-{{log['num']}}">
-                        <p>Are you sure you want to cross out post
-                            #{{ log['num'] }} by {{ log['authors'] }}?</p>
-                        <p>This cannot be undone!</p>
-                        <button commandfor="crossout-dialog-{{log['num']}}" command="close">Cancel</button>
-                        <form action="/{{sec}}/crossout/{{ log['num'] }}" method="post">
-                            <button type="submit">Crossout</button>
-                        </form>
-                    </dialog>
-                </log-datetime>
-            </log-header>
-            <hr>
-            <log-note>
-                <p>
-                    {%- if log['crossout'] -%} <del> {%- endif -%}
-                    {{ log['note'] }}
-                    {%- if log['crossout'] -%} </del> {%- endif -%}
-                </p>
-            </log-note>
-            {%- for file in log['files'].split(':') -%}
-            <!-- TODO save alt text w/ file and display as figure with figure caption -->
-            <!-- TODO label fig as #post.fignum -->
-                {%- if is_file_img(file) -%}
-                    <a href="/upload/{{sec}}/{{ file }}" data-lightbox="{{ log['num'] }}">
-                        <img src="/upload/{{sec}}/{{ file }}" alt="{{ file }}"/>
-                    </a>
-                {%- else -%}
-                    <!-- TODO static image preview for other common file extensions, or generic file for others -->
-                    <a href="/upload/{{sec}}/{{ file }}">
-                        {{ file }}
-                    </a>
-                {%- endif -%}
-            {%- endfor -%}
-        </log-post>
-    </log-entry>
-    {%- endfor -%}
-</log-entries>
-
-<hr style="padding: 2em;">
-
-<form action="/{{sec}}/log" method="post" enctype=multipart/form-data>
-    <log-entry>
-        <log-num><h3>New Log</h3></log-num>
-        <log-post>
-            <log-header>
-                <log-authors>
-                    <!-- TODO value="{{ username }}" -->
-                    <input type="text" name="name" id="name" autocomplete="on"
-                            placeholder="Authors" required />
-                </log-authors>
-                <log-datetime>
-                    <input type="text" name="datetime" id="datetime"
-                            autocomplete="on" placeholder="Date-time (optional)" />
-                </log-datetime>
-            </log-header>
-            <hr>
-            <log-note>
-                <textarea name="message" id="message" rows="7"
-                        placeholder="New log post..." required></textarea>
-                <label for="files" id="attachment">Attachments:
-                    <input type="file" name="files" id="files" multiple />
+        {% if not thread_number %}
+            <form class="section-period-form" action="{{ url_for('logs', sec=section) }}" method="get" aria-label="Entry date range">
+                <label>
+                    From
+                    <input type="date" name="after" value="{{ period_start.isoformat() if period_start else '' }}" required />
                 </label>
-                <input type="submit" id="submit" value="Submit" />
-            </log-note>
-        </log-post>
-    </log-entry>
-</form>
+                <label>
+                    Through
+                    <input type="date" name="before" value="{{ period_end.isoformat() if period_end else '' }}" required />
+                </label>
+                <button type="submit">Apply</button>
+                {% if has_period %}
+                    <a href="{{ url_for('logs', sec=section) }}">Show today</a>
+                {% endif %}
+            </form>
+
+            {% if period_error %}
+                <p class="section-period-error" role="alert">{{ period_error }}</p>
+            {% endif %}
+        {% elif not original_day %}
+            <p class="log-history-empty">Original entry #{{ thread_number }} could not be found.</p>
+        {% endif %}
+        <p id="log-history-status" class="log-history-status" role="status"></p>
+        <div id="section-entry-history">
+            {% set displayed_days = [original_day] + entry_days if original_day else entry_days %}
+            {% for day, logs in displayed_days %}
+                {% set is_original = original_day and loop.first %}
+                <div class="log-history-day" id="{{ 'thread-original' if is_original else 'history-day-' ~ (day.isoformat() if day else 'undated') }}">
+                    <h3 class="log-history-day-label">
+                        {% if is_original %}<span>Original entry</span>{% endif %}
+                        {% if day %}
+                            <time datetime="{{ day.isoformat() }}">{{ day.strftime('%d %b %Y') }}</time>
+                        {% elif not is_original %}
+                            Undated entries
+                        {% endif %}
+                    </h3>
+                    <ol class="log-history" role="list">
+                        {% for log in logs %}
+                        <li class="log-entry" id="{{ log.num }}">
+                            <article class="log-record" aria-labelledby="entry-number-{{ log.num }}">
+                                <header class="log-record-header">
+                                    <button type="button" class="log-record-number" data-entry-reference="{{ log.num }}"
+                                            title="Reference entry #{{ log.num }}" aria-label="Reference entry #{{ log.num }}">
+                                        <span id="entry-number-{{ log.num }}">#{{ log.num }}</span>
+                                    </button>
+                                    <span class="entry-author log-record-author" data-accent="{{ log.author_accent }}">{{ log.authors }}</span>
+                                    {% if log.date is not none %}
+                                        <time class="log-record-date" datetime="{{ log.date | ts('%Y-%m-%dT%H:%M:%S') }}"
+                                              {% if log.inked is not none %}title="Submitted {{ log.inked | ts('%d %b %Y at %H:%M') }}"{% endif %}>
+                                            {{ log.date | ts('%H:%M') }}
+                                        </time>
+                                    {% endif %}
+                                    {% if log.crossout %}
+                                        <span class="log-crossout-status">Crossed out</span>
+                                    {% else %}
+                                        <button type="button" class="log-crossout" aria-label="Cross out entry #{{ log.num }}"
+                                                aria-haspopup="dialog" aria-controls="crossout-dialog-{{ log.num }}">Cross out</button>
+                                    {% endif %}
+                                </header>
+
+                                {% set reference, note = log.note | entry_reference %}
+                                <p class="log-record-note">
+                                    {%- if log.crossout %}<del>{% endif -%}
+                                    {%- if reference -%}
+                                        <a href="{{ url_for('entry_thread', sec=section, reference=reference) }}">Re: #{{ reference }}</a>
+                                    {%- endif -%}
+                                    {{ note }}
+                                    {%- if log.crossout %}</del>{% endif -%}
+                                </p>
+
+                                {% if log.files %}
+                                    <div class="log-attachments">
+                                        {% for file in log.files.split(':') if file %}
+                                            {% set filename = file.rsplit('/', 1)[-1] %}
+                                            {% set attachment_url = url_for('serve_static', path='upload/' ~ section ~ '/' ~ file) %}
+                                            {% if is_file_img(file) %}
+                                                <a href="{{ attachment_url }}" data-lightbox="{{ log.num }}">
+                                                    <img src="{{ attachment_url }}" alt="{{ filename }}" loading="lazy" />
+                                                </a>
+                                            {% else %}
+                                                <a href="{{ attachment_url }}">{{ filename }}</a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+                                {% if not log.crossout %}
+                                    <dialog class="log-crossout-dialog" id="crossout-dialog-{{ log.num }}"
+                                            aria-labelledby="crossout-title-{{ log.num }}" aria-describedby="crossout-description-{{ log.num }}">
+                                        <h2 id="crossout-title-{{ log.num }}">Cross out entry #{{ log.num }}?</h2>
+                                        <p id="crossout-description-{{ log.num }}">The entry will stay in the logbook with its text crossed out. This action is permanent.</p>
+                                        <div class="log-crossout-actions">
+                                            <form method="dialog"><button autofocus>Cancel</button></form>
+                                            <form action="{{ url_for('crossout', sec=section, num=log.num) }}" method="post">
+                                                <button type="submit" class="entry-form-action">Cross out</button>
+                                            </form>
+                                        </div>
+                                    </dialog>
+                                {% endif %}
+                            </article>
+                        </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            {% endfor %}
+        </div>
+        {% if thread_number and original_day and not entry_days %}
+            <p class="log-history-empty">No replies yet.</p>
+        {% elif not thread_number and not entry_days and not period_error %}
+            <p id="log-history-empty" class="log-history-empty">
+                {% if view_day %}No entries for {{ view_day.strftime('%d %b %Y') }}.
+                {% else %}No entries in this view.{% endif %}
+            </p>
+        {% endif %}
+    </section>
+
+    {% include '_entry_composer.html' %}
+</div>
+<script src="{{ url_for('serve_static', path='log.js') }}" defer></script>
 
 {% endblock %}

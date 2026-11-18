@@ -1,34 +1,68 @@
-{% extends 'layout.html' %}
-
-{% block content %}
-
-<header>
-    <h1>{{ title }}</h1>
-
-    <a href='/cal?year={{prev.year}}&month={{prev.month}}'>Back</a>
-    <a href='/cal?year={{curr.year}}&month={{curr.month}}'>Today</a>
-    <a href='/cal?year={{next.year}}&month={{next.month}}'>Forward</a>
-
-</header>
-
-<div align='center'>
-    {{ cal }}
+<div class="search-calendar" id="search-calendar" role="region" aria-label="Calendar">
+    {% set month_total = calendar_counts.values() | sum %}
+    {% set num_days = calendar_counts | length %}
+    <div class="search-calendar-header">
+        <div>
+            <h2 id="calendar-month">{{ calendar.first.strftime('%B %Y') }}</h2>
+            <p class="calendar-month-summary">
+                {%- if month_total -%}
+                    {{ month_total }} {{ 'matching ' if query or section else '' }}{{ 'entry' if month_total == 1 else 'entries' }}
+                    across {{ num_days }} {{ 'day' if num_days == 1 else 'days' }}
+                {%- else -%}
+                    {{ 'No matching entries this month' if query or section else 'No entries this month' }}
+                {%- endif -%}
+            </p>
+        </div>
+        <nav class="calendar-controls" aria-label="Calendar navigation">
+            {% if calendar.previous %}
+                <a class="calendar-control calendar-previous"
+                   href="{{ url_for('search', year=calendar.previous.year, month=calendar.previous.month,
+                                    page=page, _anchor='search-calendar', **filters) }}"
+                   aria-label="Previous month">‹</a>
+            {% endif %}
+            <a class="calendar-control calendar-today"
+               href="{{ url_for('search', q=query, section=section, after=today.isoformat(),
+                                before=today.isoformat(), _anchor='search-results') }}">Today</a>
+            {% if calendar.next %}
+                <a class="calendar-control calendar-next"
+                   href="{{ url_for('search', year=calendar.next.year, month=calendar.next.month,
+                                    page=page, _anchor='search-calendar', **filters) }}"
+                   aria-label="Next month">›</a>
+            {% endif %}
+        </nav>
+    </div>
+    <table aria-labelledby="calendar-month">
+        <thead>
+            <tr>
+                {% for weekday in calendar.weekdays %}
+                    <th scope="col">{{ weekday }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for week in calendar.weeks %}
+                <tr>
+                    {% for day in week %}
+                        <td>
+                            {% if day %}
+                                {% set date = calendar.first.replace(day=day) %}
+                                {% set iso_date = date.isoformat() %}
+                                {% set count = calendar_counts.get(day, 0) %}
+                                {% set label = date.strftime('%A, %B %d, %Y') ~ ', ' ~ count ~ (' entry' if count == 1 else ' entries') %}
+                                <a class="calendar-day{% if count %} calendar-day-active{% endif %}{% if date == selected_day %} calendar-day-selected{% endif %}"
+                                   href="{{ url_for('search', q=query, section=section, after=iso_date,
+                                                    before=iso_date, _anchor='search-results') }}"
+                                   aria-label="{{ label }}{% if date == selected_day %}, selected{% endif %}"
+                                   {% if count %}title="{{ label }}"{% endif %}
+                                   {% if date == today %}aria-current="date"{% endif %}>
+                                    <span class="calendar-day-number">{{ day }}</span>
+                                    {% if count %}<span class="calendar-day-count">{{ '99+' if count > 99 else count }}</span>{% endif %}
+                                </a>
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-
-<style>
- table {
-     table-layout: fixed;
-     width: 100%;
- }
- table a[href] {
-     color: var(--cfg);
-     text-decoration: none;
- }
- table ul {
-     list-style-type: none; /* remove bullets */
-     padding: 0;
-     margin: 0;
- }
-</style>
-
-{% endblock %}

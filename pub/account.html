@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<form class="account-settings" action="{{ url_for('auth.account') }}" method="post">
+    <input type="hidden" name="account_form_token" value="{{ session['account_form_token'] }}" />
+    <div class="settings-panel">
+        <fieldset>
+            <legend>Name color on your entries</legend>
+            <div class="account-accent-options">
+                {% for accent, label in accents.items() %}
+                    <label class="account-accent-option" data-accent="{{ accent }}">
+                        <input type="radio" name="accent" value="{{ accent }}"{% if accent == current_user.accent %} checked{% endif %} required />
+                        <span class="account-accent-swatch" aria-hidden="true"></span>
+                        <span>{{ label }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </fieldset>
+    </div>
+
+    <div class="settings-panel">
+        <fieldset>
+            <legend>Sections</legend>
+            <label class="account-option">
+                <input type="checkbox" name="show_archived" value="1" aria-describedby="archived-description"
+                       {% if current_user.show_archived %}checked{% endif %} />
+                Show archived sections
+            </label>
+            <input type="hidden" name="show_archived" value="0" />
+            <p class="account-option-help" id="archived-description">Includes Borexino in your section lists and search results.</p>
+        </fieldset>
+    </div>
+
+    <div class="settings-panel settings-support">
+        <h2>Feature requests and bug fixes</h2>
+        <p>Contact Ed van Bruggen or Antoine Amy.</p>
+    </div>
+
+    <div class="entry-form-toolbar">
+        {% for message in get_flashed_messages() %}
+            <p class="account-settings-feedback" role="status">{{ message }}</p>
+        {% endfor %}
+        <button class="entry-form-action" type="submit">Save</button>
+    </div>
+</form>
+<footer class="design-credit">designed by Antoine Amy, Ed van Bruggen, and Abdulrahman Morsy</footer>
+{% endblock %}
