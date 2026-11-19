@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<header>
+    <h1>{{ title }}</h1>
+</header>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="notification">
+            {{ messages[0] }}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<table>
+    <tr><th>Name</th>     <td>{{ person['name'] }}</td></tr>
+    <tr><th>Username</th> <td>{{ person['user'] }}</td></tr>
+    <tr><th>E-Mail</th>   <td><a href="mailto:{{ person['email'] }}">{{ person['email'] }}</a></td></tr>
+    <tr><th>Role</th>     <td>{{ person['role'] }}</td></tr>
+    <tr><th>Joined</th>   <td>{{ person['joined']|ts }}</td></tr>
+</table>
+
+{% if can_edit %}
+    <a href="/people/{{ person['user'] }}/edit"><button>Edit</button></a>
+{% endif %}
+<a href="/people"><button>Back to People</button></a>
+
+{% endblock %}

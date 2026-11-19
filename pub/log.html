@@ -43,7 +43,7 @@
                 #{{ log['num'] }}
             </a>
         </log-num>
-        <log-post> <!-- TODO change to details? -->
+        <log-post>
             <log-header>
                 <log-authors>{{ log['authors'] }}</log-authors>
                 <log-datetime>
@@ -72,14 +72,11 @@
                 </p>
             </log-note>
             {%- for file in log['files'].split(':') -%}
-            <!-- TODO save alt text w/ file and display as figure with figure caption -->
-            <!-- TODO label fig as #post.fignum -->
                 {%- if is_file_img(file) -%}
                     <a href="/upload/{{sec}}/{{ file }}" data-lightbox="{{ log['num'] }}">
                         <img src="/upload/{{sec}}/{{ file }}" alt="{{ file }}"/>
                     </a>
                 {%- else -%}
-                    <!-- TODO static image preview for other common file extensions, or generic file for others -->
                     <a href="/upload/{{sec}}/{{ file }}">
                         {{ file }}
                     </a>
@@ -98,7 +95,6 @@
         <log-post>
             <log-header>
                 <log-authors>
-                    <!-- TODO value="{{ username }}" -->
                     <input type="text" name="name" id="name" autocomplete="on"
                             placeholder="Authors" required />
                 </log-authors>
