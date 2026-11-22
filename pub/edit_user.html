@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<header>
+    <h1>{{ title }}</h1>
+</header>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="notification is-danger">
+            {{ messages[0] }}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<form action="/people/{{ person['user'] }}/edit" method="POST" class="relog-edit-user">
+    <label>Username:</label>
+    <input type="text" value="{{ person['user'] }}" disabled />
+
+    <label for="name">Full name:</label>
+    <input type="text" name="name" id="name" value="{{ person['name'] }}" required />
+
+    <label for="email">E-Mail:</label>
+    <input type="email" name="email" id="email" value="{{ person['email'] }}" required />
+
+    <label for="role">Role:</label>
+    {% if is_admin %}
+        <select name="role" id="role">
+            {%- for r in roles -%}
+                <option value="{{ r }}" {% if r == person['role'] %}selected{% endif %}>{{ r }}</option>
+            {%- endfor -%}
+        </select>
+    {% else %}
+        <input type="text" value="{{ person['role'] }}" disabled />
+    {% endif %}
+
+    <fieldset>
+        <legend>Change password (leave blank to keep)</legend>
+        {% if is_self %}
+            <label for="current_password">Current password:</label>
+            <input type="password" name="current_password" id="current_password" />
+        {% endif %}
+        <label for="new_password">New password:</label>
+        <input type="password" name="new_password" id="new_password" />
+    </fieldset>
+
+    <input type="submit" value="Save" />
+</form>
+
+<a href="/people/{{ person['user'] }}"><button>Cancel</button></a>
+
+{% endblock %}

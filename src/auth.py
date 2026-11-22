@@ -13,11 +13,12 @@ import sqlite3
 auth = Blueprint('auth', __name__)
 
 class User(UserMixin):
-    def __init__(self, name, user, email, active=False):
+    def __init__(self, name, user, email, role='pending'):
         self.name = name
         self.user = user
         self.email = email
-        self.active = active
+        self.role = role
+        self.active = role != 'pending'
 
     def is_active(self):
         return self.active
@@ -31,10 +32,9 @@ class User(UserMixin):
     def get_id(self):
         return self.user
 
-# TODO import from logbook.py
 def get_db():
     conn = sqlite3.connect('logbook.db')
-    conn.row_factory = sqlite3.Row # Support row access by column name
+    conn.row_factory = sqlite3.Row
     return conn
 
 @auth.route('/login')
@@ -45,7 +45,6 @@ def login():
 def login_post():
     email = request.form.get('email').strip().lower()
     password = request.form.get('password')
-    # remember = True if request.form.get('remember') else False
 
     with get_db() as conn:
         user = conn.execute("SELECT * FROM people WHERE user = ? OR email = ?", (email, email)).fetchone()
@@ -54,9 +53,8 @@ def login_post():
         flash('Please check your login details and try again.')
         return redirect(url_for('auth.login'))
 
-    u = User(user['name'], user['user'], user['email'], user['role'] != 'pending')
+    u = User(user['name'], user['user'], user['email'], user['role'])
     login_user(u, remember=True)
-    # TODO redirect to previous page found in 'next' param
     return redirect('/')
 
 @auth.route('/signup')
@@ -67,7 +65,7 @@ def signup():
 def signup_post():
     name = request.form.get('name').strip()
     user = request.form.get('user').strip().lower()
-    email = request.form.get('email').strip().lower() # TODO validate
+    email = request.form.get('email').strip().lower()
     password = request.form.get('password').strip()
 
     if ' ' in user:
