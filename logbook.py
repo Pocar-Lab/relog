@@ -22,9 +22,9 @@ from src.people import people
 
 
 app = Flask(__name__, static_folder='static', template_folder="pub")
-CORS(app)
+CORS(app)  # Allow requests from the HTML file opened locally
 
-app.config['SECRET_KEY'] = 'xenon-forever' # change before deploying
+app.config['SECRET_KEY'] = 'xenon-forever' # TODO change when deployed
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 login_manager.init_app(app)
@@ -53,7 +53,7 @@ def inject_sections():
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    conn.row_factory = sqlite3.Row # Support row access by column name
     return conn
 
 def init_db():
@@ -102,10 +102,15 @@ app.jinja_env.globals.update(is_file_img=is_file_img)
 def fmt_ts(ts, fmt="%Y-%m-%d"):
     return dt.datetime.fromtimestamp(ts).strftime(fmt)
 
+# Static files
+# TODO protect file uploads with @login_required
 @app.route('/<path:path>')
 def serve_static(path):
     return send_from_directory('static', path)
 
+# TODO markdown to html files in wiki/
+
+# Home page
 @app.route('/')
 def home():
     return render_template('home.html', sections=SECTIONS, title='Pocar Lab Log Book')
@@ -130,12 +135,13 @@ def date_title(before, after, fmt="%Y-%m-%d"):
         return f"from {before:{fmt}} "
     return f"from {after:{fmt}} to {before:{fmt}} "
 
+# Section logs
 @app.route('/<string:sec>/log')
 @login_required
 def logs(sec):
     if sec not in SECTIONS:
         abort(404)
-    num = request.args.get('num', '').strip()
+    num = request.args.get('num', '').strip() # TODO strip leading #
     author = request.args.get('author', '').strip()
     before = parse_date(request.args.get('before', ''))
     after = parse_date(request.args.get('after', ''))
@@ -145,15 +151,20 @@ def logs(sec):
     if not request.args:
         before = after = today
 
+    # if before and after and after > before:   # correct for reversed range
+    #     before, after = after, before
+
+    # TODO pull out to func
     title = "Logs "
     query = f"SELECT * FROM log_{sec} WHERE "
     params = []
     if num:
-        query += "num = ? AND "
+        # TODO change to anchor on date
+        query += "num = ? AND " # TODO search range if hypen
         title += f"#{num} "
         params.append(num)
     if author:
-        query += "authors = ? AND "
+        query += "authors = ? AND " # TODO any author in authors list
         title += f"by {author} "
         params.append(author)
     if before:
@@ -165,10 +176,11 @@ def logs(sec):
         start = after.replace(hour=0, minute=0, second=0, microsecond=0)
         params.append(int(start.timestamp()))
     if text:
-        query += "note LIKE ? AND "
+        query += "note LIKE ? AND " # TODO replace with MATCH
         title += f"containing '{text}' "
         params.append(f"%{text}%")
-    query += " 1=1 ORDER BY num ASC"
+    query += " 1=1 ORDER BY num ASC" # TODO ability to order by date
+    # query += " 1=1 ORDER BY date ASC, num ASC"
 
     title += date_title(before, after)
 
@@ -181,24 +193,31 @@ def logs(sec):
                            curr_date=f"{today:%Y-%m-%d}", prev_date=prev_date, next_date=next_date)
 
 def upload_files(sec, files):
+    # TODO dont override file of same name
+    # TODO put in date folder
+    # TODO compress image / block files over 2MB
+    # TODO error if file name contains :
     files_str = []
     for f in files:
         file_name = secure_filename(f.filename)
         if not file_name:
             continue
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], sec, file_name)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], sec, file_name) # TODO date,
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         f.save(file_path)
         files_str.append(file_name)
     return ":".join(files_str)
 
+# Upload new logbook post
 @app.post('/<string:sec>/log')
 @login_required
 def log(sec):
     if sec not in SECTIONS:
         abort(404)
-    name = request.form['name'].strip()
+    name = request.form['name'].strip() # TODO split into multiple authors
     msg = request.form['message'].strip()
+    # TODO only set to now if datetime empty, otherwise error on parse exception
+    # TODO if no time given replace with current time, not midnight
     date = parse_date(request.form['datetime']) or dt.datetime.now()
 
     files = upload_files(sec, request.files.getlist("files"))
@@ -209,8 +228,10 @@ def log(sec):
             (int(date.timestamp()), name, files, msg),
         )
         date_str = f"{date:%Y-%m-%d}"
+        # TODO on failure to upload file etc send warning pop up
         return redirect(f"/{sec}/log?before={date_str}&after={date_str}#{cur.lastrowid}")
 
+# Cross out log post number
 @app.post('/<string:sec>/crossout/<int:num>')
 @login_required
 def crossout(sec, num):
@@ -230,6 +251,8 @@ def cal():
     month = request.args.get("month", default=dt.datetime.now().month, type=int)
 
     title = f"Calendar for {calendar.month_name[month]} {year}"
+
+    # day_offset = datetime.date(year, month, 1).weekday() - FIRST_WEEKDAY
 
     with get_db() as conn:
         cal_html = cal_gen(conn, year, month, FIRST_WEEKDAY, SECTIONS)

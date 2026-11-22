@@ -34,15 +34,18 @@ def get_section_counts(conn, year, month, sections):
 
     return counts
 
+# TODO insert number of posts per day per sections
 def cal_gen(conn, year, month, first_weekday, sections):
     res = '<table border="1" cellpadding="0" cellspacing="0">'
 
+    # Header for days of week
     res += '<tr>'
     for i in range(len(DAYS_OF_WEEK)):
         day = DAYS_OF_WEEK[(first_weekday + i) % len(DAYS_OF_WEEK)]
         res += f'<th class="{day.lower()}">{day}</th>'
     res += '</tr>'
 
+    # Fill in days
     calendar.setfirstweekday(first_weekday)
     days = calendar.monthcalendar(year, month)
     counts = get_section_counts(conn, year, month, sections.keys())
@@ -52,6 +55,7 @@ def cal_gen(conn, year, month, first_weekday, sections):
             day_disp = "&nbsp;" if day == 0 else day
             date_str = f"{year}-{month}-{day}"
             entries_html = ""
+            # TODO sort by number in section
             for sec, sec_name in sections.items():
                 num = counts[sec].get(day, 0)
                 if num > 0:

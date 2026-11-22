@@ -32,9 +32,10 @@ class User(UserMixin):
     def get_id(self):
         return self.user
 
+# TODO import from logbook.py
 def get_db():
     conn = sqlite3.connect('logbook.db')
-    conn.row_factory = sqlite3.Row
+    conn.row_factory = sqlite3.Row # Support row access by column name
     return conn
 
 @auth.route('/login')
@@ -45,6 +46,7 @@ def login():
 def login_post():
     email = request.form.get('email').strip().lower()
     password = request.form.get('password')
+    # remember = True if request.form.get('remember') else False
 
     with get_db() as conn:
         user = conn.execute("SELECT * FROM people WHERE user = ? OR email = ?", (email, email)).fetchone()
@@ -55,6 +57,7 @@ def login_post():
 
     u = User(user['name'], user['user'], user['email'], user['role'])
     login_user(u, remember=True)
+    # TODO redirect to previous page found in 'next' param
     return redirect('/')
 
 @auth.route('/signup')
@@ -65,7 +68,7 @@ def signup():
 def signup_post():
     name = request.form.get('name').strip()
     user = request.form.get('user').strip().lower()
-    email = request.form.get('email').strip().lower()
+    email = request.form.get('email').strip().lower() # TODO validate
     password = request.form.get('password').strip()
 
     if ' ' in user:
