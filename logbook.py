@@ -192,7 +192,7 @@ def logs(sec):
         rows = conn.execute(query, params).fetchall()
     prev_date = f"{(after or today) - dt.timedelta(1):%Y-%m-%d}"
     next_date = f"{(before or today) + dt.timedelta(1):%Y-%m-%d}"
-    return render_template('log.html', logs=rows, title=SECTIONS[sec] + title,
+    return render_template('log.html', logs=rows, title=f"{SECTIONS[sec]} {title}",
                            sec=sec, sections=SECTIONS,
                            curr_date=f"{today:%Y-%m-%d}", prev_date=prev_date, next_date=next_date)
 
