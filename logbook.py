@@ -114,9 +114,13 @@ def serve_static(path):
 
 @app.context_processor
 def inject_globals():
-    return dict(sections=SECTIONS)
+    return dict(sections=SECTIONS, Role=Role)
 
 # TODO markdown to html files in wiki/
+
+@app.errorhandler(403)
+def permission_denied(e):
+    return render_template('403.html'), 403
 
 # Home page
 @app.route('/')
