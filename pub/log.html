@@ -47,7 +47,7 @@
         </log-num>
         <log-post> <!-- TODO change to details? -->
             <log-header>
-                <log-authors>{{ log['authors'] }}</log-authors>
+                <log-authors>{{ log['authors'].title() }}</log-authors>
                 <log-datetime>
                     <a href="/{{sec}}/log?before={{ log['date']|ts }}&after={{ log['date']|ts }}"
                         title="Submitted: {{ log['inked']|ts('%Y-%m-%d %H:%M') }}">
