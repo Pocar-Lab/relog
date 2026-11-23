@@ -18,7 +18,7 @@
         <td><a href="/people/{{ p['user'] }}">{{ p['name'] }}</a></td>
         <td>{{ p['user'] }}</td>
         <td><a href="mailto:{{ p['email'] }}">{{ p['email'] }}</a></td>
-        <td>{{ p['role'] }}</td>
+        <td>{{ p['role'] | role_str }}</td>
     </tr>
     {%- endfor -%}
 </table>

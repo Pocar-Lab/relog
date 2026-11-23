@@ -14,10 +14,10 @@ import sqlite3
 import markdown
 import os
 import calendar
-from flask_login import LoginManager, login_required
+from flask_login import LoginManager, login_required, current_user
 
 from src.cal import cal_gen
-from src.auth import auth, User
+from src.auth import auth, User, role_required, Role
 from src.people import people
 
 
@@ -77,7 +77,7 @@ def init_db():
                 email    TEXT NOT NULL,
                 password TEXT NOT NULL,
                 joined   INT  DEFAULT (unixepoch('now')),
-                role     TEXT NOT NULL DEFAULT 'pending'
+                role     INT  NOT NULL DEFAULT '0'
             )
         """)
 
@@ -101,6 +101,9 @@ app.jinja_env.globals.update(is_file_img=is_file_img)
 @app.template_filter('ts')
 def fmt_ts(ts, fmt="%Y-%m-%d"):
     return dt.datetime.fromtimestamp(ts).strftime(fmt)
+@app.template_filter('role_str')
+def role_str(role_num):
+    return Role(role_num).name
 
 # Static files
 # TODO protect file uploads with @login_required
@@ -141,7 +144,7 @@ def date_title(before, after, fmt="%Y-%m-%d"):
 
 # Section logs
 @app.route('/<string:sec>/log')
-@login_required
+@role_required(Role.Guest)
 def logs(sec):
     if sec not in SECTIONS:
         abort(404)
@@ -214,7 +217,7 @@ def upload_files(sec, files):
 
 # Upload new logbook post
 @app.post('/<string:sec>/log')
-@login_required
+@role_required(Role.Member)
 def log(sec):
     if sec not in SECTIONS:
         abort(404)
@@ -237,11 +240,12 @@ def log(sec):
 
 # Cross out log post number
 @app.post('/<string:sec>/crossout/<int:num>')
-@login_required
+@role_required(Role.Member)
 def crossout(sec, num):
     "Mark the given log post as crossed out"
     if sec not in SECTIONS:
         abort(404)
+    # TODO only cross out if current_user is user of post, or current user is mod/admin
     with get_db() as conn:
         conn.execute(f"UPDATE log_{sec} SET crossout = 1 WHERE num = ?", (num,))
     target = request.referrer or f'/?num={num}'

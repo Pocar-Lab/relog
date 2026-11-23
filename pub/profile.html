@@ -14,11 +14,12 @@
     {% endif %}
 {% endwith %}
 
+<!-- TODO link to all posts with username -->
 <table>
     <tr><th>Name</th>     <td>{{ person['name'] }}</td></tr>
     <tr><th>Username</th> <td>{{ person['user'] }}</td></tr>
     <tr><th>E-Mail</th>   <td><a href="mailto:{{ person['email'] }}">{{ person['email'] }}</a></td></tr>
-    <tr><th>Role</th>     <td>{{ person['role'] }}</td></tr>
+    <tr><th>Role</th>     <td>{{ person['role']|role_str }}</td></tr>
     <tr><th>Joined</th>   <td>{{ person['joined']|ts }}</td></tr>
 </table>
 

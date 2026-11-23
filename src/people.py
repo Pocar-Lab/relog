@@ -6,17 +6,13 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from src.auth import get_db
+from src.auth import get_db, Role, role_required
 
 
 people = Blueprint('people', __name__)
 
-ROLES = ['pending', 'member', 'admin']
-
-
 def is_admin():
-    return current_user.role == 'admin'
-
+    return current_user.role == Role.Admin
 def can_edit(user):
     return is_admin() or current_user.user == user
 
@@ -29,7 +25,7 @@ def get_person(user):
 
 
 @people.route('/people')
-@login_required
+@role_required(Role.Guest)
 def contacts():
     with get_db() as conn:
         rows = conn.execute("SELECT user, name, email, role FROM people ORDER BY name").fetchall()
@@ -39,10 +35,13 @@ def contacts():
 @people.route('/people/<string:user>')
 @login_required
 def profile(user):
+    if current_user.role < Role.Guest and not can_edit(user):
+        abort(403)
     person = get_person(user)
     return render_template('profile.html', person=person, title=person['name'],
                            can_edit=can_edit(user))
 
+# Edit user
 
 @people.route('/people/<string:user>/edit')
 @login_required
@@ -51,8 +50,9 @@ def edit(user):
         abort(403)
     person = get_person(user)
     return render_template('edit_user.html', person=person, title=f"Edit {person['name']}",
-                           roles=ROLES, is_admin=is_admin(), is_self=(user == current_user.user))
-
+                           roles=[r.name for r in Role],
+                           is_admin=is_admin(),
+                           is_self=(user == current_user.user))
 
 @people.post('/people/<string:user>/edit')
 @login_required
@@ -78,16 +78,10 @@ def edit_post(user):
     # Only admins can change roles
     role = person['role']
     if is_admin():
-        role = request.form.get('role', role)
-        if role not in ROLES:
+        role = Role[request.form.get('role', role)]
+        if role not in Role:
             flash('Unknown role')
             return redirect(back)
-        if person['role'] == 'admin' and role != 'admin':
-            with get_db() as conn:
-                admins = conn.execute("SELECT COUNT(*) FROM people WHERE role = 'admin'").fetchone()[0]
-            if admins <= 1:
-                flash('Cannot remove the last admin')
-                return redirect(back)
 
     password = person['password']
     new_password = request.form.get('new_password', '')
@@ -100,7 +94,7 @@ def edit_post(user):
 
     with get_db() as conn:
         conn.execute("UPDATE people SET name = ?, email = ?, role = ?, password = ? WHERE user = ?",
-                     (name, email, role, password, user))
+                     (name, email, role.value, password, user))
 
     flash('Saved')
     return redirect(url_for('people.profile', user=user))

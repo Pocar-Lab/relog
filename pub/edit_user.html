@@ -28,11 +28,11 @@
     {% if is_admin %}
         <select name="role" id="role">
             {%- for r in roles -%}
-                <option value="{{ r }}" {% if r == person['role'] %}selected{% endif %}>{{ r }}</option>
+                <option value="{{ r }}" {% if r == person['role']|role_str %}selected{% endif %}>{{ r }}</option>
             {%- endfor -%}
         </select>
     {% else %}
-        <input type="text" value="{{ person['role'] }}" disabled />
+        <input type="text" value="{{ person['role']|role_str }}" disabled />
     {% endif %}
 
     <fieldset>
