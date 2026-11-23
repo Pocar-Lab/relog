@@ -42,7 +42,7 @@ log-post {
     flex: 0 4 100%;
     display: block;
     margin: 0.5rem 0 1rem;
-    padding: 0 0.6rem;
+    padding: 0.6rem;
     border-radius: 4px;
     overflow: hidden;
     outline: 1px solid var(--cmed);
@@ -58,6 +58,10 @@ log-post log-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+log-datetime {
+    display: flex;
+    gap: 1em;
 }
 log-post log-note textarea {
     width:100%;
