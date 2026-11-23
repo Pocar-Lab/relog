@@ -98,13 +98,16 @@
         <log-post>
             <log-header>
                 <log-authors>
-                    <!-- TODO value="{{ username }}" -->
+                    <p>{{ current_user.user.capitalize() }}</p>
                     <input type="text" name="name" id="name" autocomplete="on"
-                            placeholder="Authors" required />
+                           title="Space seperated list of usernames"
+                           placeholder="Additional Authors..." />
                 </log-authors>
                 <log-datetime>
                     <input type="text" name="datetime" id="datetime"
-                            autocomplete="on" placeholder="Date-time (optional)" />
+                           autocomplete="on"
+                           title="Format: YEAR-MM-DD HH:mm"
+                           placeholder="Non-current time?" />
                 </log-datetime>
             </log-header>
             <hr>

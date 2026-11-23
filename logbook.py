@@ -62,6 +62,7 @@ def init_db():
             conn.execute(f"""
                 CREATE TABLE IF NOT EXISTS log_{sec} (
                     num       INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user      TEXT       NOT NULL,
                     authors   TEXT       NOT NULL,
                     date      INT        DEFAULT (unixepoch('now')),
                     inked     INT        DEFAULT (unixepoch('now')),
@@ -221,7 +222,8 @@ def upload_files(sec, files):
 def log(sec):
     if sec not in SECTIONS:
         abort(404)
-    name = request.form['name'].strip() # TODO split into multiple authors
+    name = request.form['name'].strip() # TODO validate that it is space seperated list of usernames
+    authors = f'{current_user.user} {name}' # list of authors
     msg = request.form['message'].strip()
     # TODO only set to now if datetime empty, otherwise error on parse exception
     # TODO if no time given replace with current time, not midnight
@@ -231,8 +233,8 @@ def log(sec):
 
     with get_db() as conn:
         cur = conn.execute(
-            f"INSERT INTO log_{sec} (date, authors, files, note) VALUES (?, ?, ?, ?)",
-            (int(date.timestamp()), name, files, msg),
+            f"INSERT INTO log_{sec} (date, user, authors, files, note) VALUES (?, ?, ?, ?, ?)",
+            (int(date.timestamp()), current_user.user, authors, files, msg),
         )
         date_str = f"{date:%Y-%m-%d}"
         # TODO on failure to upload file etc send warning pop up
